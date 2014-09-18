@@ -1,22 +1,18 @@
-package com.uniclau.alarmplugin;
+package com.uniclau.simplefile;
 
-import java.text.SimpleDateFormat;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
 import org.json.JSONArray;
 import org.json.JSONException;
-import java.util.Date;
-import android.app.AlarmManager;
-import android.app.KeyguardManager;
-import android.app.PendingIntent;
-import android.app.KeyguardManager.KeyguardLock;
+
 import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.os.PowerManager;
-import android.os.PowerManager.WakeLock;
-import android.preference.PreferenceManager;
+import android.util.Base64;
+
 import android.util.Log;
 
 
@@ -39,11 +35,42 @@ public class SimpleFilePlugin extends CordovaPlugin {
 	@Override
 	public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
 		try {
+			Context ctx= this.cordova.getActivity();
 			if ("getFile".equals(action)) {
-				callbackContext.success();
+				String fileName = args.getString(0);
+				
+			    File f= ctx.getFileStreamPath(fileName);
+				if (!f.exists()) {
+				    Log.d(TAG, "File does not exist:" + fileName);
+				    callbackContext.error("File does not exist");
+				    return false;
+				}
+				FileInputStream is = ctx.openFileInput(fileName); //$NON-NLS-1$
+				byte buff[] = new byte[(int)f.length()];
+				is.read(buff);
+				String data64 = Base64.encodeToString(buff,  Base64.DEFAULT);
+				is.close();
+				
+				callbackContext.success(data64);
 			    return true; 		
 			}
-			if ("setFile".equals(action)) {
+			if ("setFile".equals(action)) {			
+				String fileName = args.getString(0);
+				String data64 = args.getString(1);
+				byte []data = Base64.decode(data64, Base64.DEFAULT);
+				  
+				  
+				File f= ctx.getFileStreamPath(fileName);
+				if (f.exists()) {
+					f.delete();
+				}
+				
+				FileOutputStream fstream;
+				fstream = ctx.openFileOutput(fileName, Context.MODE_PRIVATE);
+				fstream.write(data);
+				fstream.flush();
+				fstream.close();
+			         
 				callbackContext.success();
 			    return true; 		
 			}
@@ -56,7 +83,11 @@ public class SimpleFilePlugin extends CordovaPlugin {
 			    return true; 		
 			}
 			if ("getUrlFile".equals(action)) {
-				callbackContext.success();
+				
+				String fileName = args.getString(0);
+				String res = "file://" + ctx.getFilesDir() + "/" + fileName;
+				
+				callbackContext.success(res);
 			    return true; 		
 			}
 			if ("ccreateDirectory".equals(action)) {

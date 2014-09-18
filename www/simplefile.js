@@ -1,7 +1,9 @@
 var simpleFile = {
     getFile: function(fileName, successCallback, errorCallback) {
         cordova.exec(
-            successCallback,
+            function(data64) {
+                successCallback(atob(data64));
+            },
             errorCallback,
             "SimpleFilePlugin",
             "getFile",
@@ -9,12 +11,13 @@ var simpleFile = {
         );
     },
     setFile: function(fileName, fileData, successCallback, errorCallback) {
+        var data64=btoa(fileData);
         cordova.exec(
             successCallback,
             errorCallback,
             "SimpleFilePlugin",
             "setFile",
-            [fileName, fileData]
+            [fileName, data64]
         );
     },
     deleteFile: function(fileName, successCallback, errorCallback) {
@@ -52,7 +55,7 @@ var simpleFile = {
             "createDir",
             [dirName]
         );
-    }
+    },
     deleteDir: function(dirName, successCallback, errorCallback) {
         cordova.exec(
             successCallback,
