@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
+           id="com.uniclau.simplefile"
+      version="0.1.0">
+    <name>SimpleFile</name>
+    <description>Simple File Plugin</description>
+    <license>MIT</license>
+    <keywords>phonegap,file,download,uri,filesystem,local</keywords>
+
+
+    <js-module src="www/simplefile.js" name="SimpleFile">
+        <clobbers target="window.simpleFile" />
+    </js-module>
+
+    <!-- android -->
+    <platform name="android">
+        <config-file target="res/xml/config.xml" parent="/*">
+            <feature name="SimpleFile">
+                <param name="android-package" value="com.uniclau.simplefile.SimpleFilePlugin"/>
+            </feature>
+        </config-file>
+
+        <source-file src="src/android/SimpleFilePlugin.java" target-dir="src/com/uniclau/simplefile" />      
+     </platform>          
+</plugin>
