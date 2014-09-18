@@ -32,6 +32,14 @@ public class SimpleFilePlugin extends CordovaPlugin {
 	        super.onResume(multitasking);
 	    }
 	    
+		private void DeleteRecursive(File fileOrDirectory) {
+		    if (fileOrDirectory.isDirectory())
+		        for (File child : fileOrDirectory.listFiles())
+		            DeleteRecursive(child);
+
+		    fileOrDirectory.delete();
+		}
+	    
 	@Override
 	public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
 		try {
@@ -65,6 +73,8 @@ public class SimpleFilePlugin extends CordovaPlugin {
 					f.delete();
 				}
 				
+				f.mkdirs();
+				
 				FileOutputStream fstream;
 				fstream = ctx.openFileOutput(fileName, Context.MODE_PRIVATE);
 				fstream.write(data);
@@ -75,6 +85,11 @@ public class SimpleFilePlugin extends CordovaPlugin {
 			    return true; 		
 			}
 			if ("deleteFile".equals(action)) {
+				String fileName = args.getString(0);
+				File f= ctx.getFileStreamPath(fileName);
+				if (f.exists()) {
+					f.delete();
+				}
 				callbackContext.success();
 			    return true; 		
 			}
@@ -91,10 +106,24 @@ public class SimpleFilePlugin extends CordovaPlugin {
 			    return true; 		
 			}
 			if ("ccreateDirectory".equals(action)) {
+				String dirName = args.getString(0);
+				if ( ! "/".equals(dirName.substring(dirName.length() -1))) {
+					dirName=dirName+"/";
+				}
+				File dir = new File(dirName);
+				dir.mkdirs();
 				callbackContext.success();
 			    return true; 		
 			}
 			if ("deleteDirectory".equals(action)) {
+				String dirName = args.getString(0);
+				File dir = new File(dirName);
+				if (dir.isDirectory()) {
+					DeleteRecursive(dir);
+				} else {
+				    callbackContext.error("It is not a directory");
+				    return false;		
+				}
 				callbackContext.success();
 			    return true; 		
 			}
