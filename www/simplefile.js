@@ -67,4 +67,4 @@ var simpleFile = {
     }
 };
 
-module.exports = alarmPlugin;
+module.exports = simpleFile;
