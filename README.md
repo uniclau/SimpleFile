@@ -48,7 +48,7 @@ Creates a folder and all the parent directories that do not exist yet.
 
 ### Listing a folder's elements
 
-	window.plugins.simpleFile.list(folderName, successCallback, errorCallback)**
+	window.plugins.simpleFile.list(folderName, successCallback, errorCallback)
 
 Provides the ```successCallback``` function with an array of objects, containing the files and folders contained inside the ```folderName``` directory.
 
