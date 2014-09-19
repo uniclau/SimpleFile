@@ -44,7 +44,7 @@ public class SimpleFilePlugin extends CordovaPlugin {
 		    fileOrDirectory.delete();
 		}
 
-		private String getRootPath(ctx, String type) {
+		private String getRootPath(Context ctx, String type) {
 			if ("external".equals(type)) {
 				return ctx.getExternalFilesDir(null).getAbsolutePath();
 			} else {
