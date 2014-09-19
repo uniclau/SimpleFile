@@ -25,7 +25,7 @@ public class SimpleFilePlugin extends CordovaPlugin {
 	
 	   @Override
 	    public void onPause(boolean multitasking) {
-	        //Log.d(TAG, "onPause");
+	        Log.d(TAG, "onPause");
 	        //URLNetRequester.CancelAll();
 	        super.onPause(multitasking);
 	    }
