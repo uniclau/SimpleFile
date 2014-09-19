@@ -1,5 +1,5 @@
 var simpleFile = {
-    readFile: function(fileName, successCallback, errorCallback) {
+    read: function(fileName, successCallback, errorCallback) {
         cordova.exec(
             function(data64) {
                 console.log(data64);
@@ -7,71 +7,62 @@ var simpleFile = {
             },
             errorCallback,
             "SimpleFilePlugin",
-            "readFile",
+            "read",
             [fileName]
         );
     },
-    writeFile: function(fileName, fileData, successCallback, errorCallback) {
+    write: function(fileName, fileData, successCallback, errorCallback) {
         var data64=btoa(fileData);
         cordova.exec(
             successCallback,
             errorCallback,
             "SimpleFilePlugin",
-            "writeFile",
+            "write",
             [fileName, data64]
         );
     },
-    deleteFile: function(fileName, successCallback, errorCallback) {
+    remove: function(fileName, successCallback, errorCallback) {
         cordova.exec(
             successCallback,
             errorCallback,
             "SimpleFilePlugin",
-            "deleteFile",
+            "remove",
             [fileName]
         );
     },
-    getUrlFile: function(fileName, successCallback, errorCallback) {
+    getUrl: function(fileName, successCallback, errorCallback) {
         cordova.exec(
             successCallback,
             errorCallback,
             "SimpleFilePlugin",
-            "getUrlFile",
+            "getUrl",
             [fileName]
         );
     },
-    downloadFile: function(url, fileName, successCallback, errorCallback) {
+    download: function(url, fileName, successCallback, errorCallback) {
         cordova.exec(
             successCallback,
             errorCallback,
             "SimpleFilePlugin",
-            "downloadFile",
+            "download",
             [url,fileName]
         );
     },
-    createDir: function(dirName, successCallback, errorCallback) {
+    createFolder: function(dirName, successCallback, errorCallback) {
         cordova.exec(
             successCallback,
             errorCallback,
             "SimpleFilePlugin",
-            "createDir",
+            "createFolder",
             [dirName]
         );
     },
-    deleteDir: function(dirName, successCallback, errorCallback) {
+    list: function(dirName, successCallback, errorCallback) {
         cordova.exec(
             successCallback,
             errorCallback,
             "SimpleFilePlugin",
-            "deleteDir",
-            [dirName]
-        );
-    },
-    listDir: function(dirName, successCallback, errorCallback) {
-        cordova.exec(
-            successCallback,
-            errorCallback,
-            "SimpleFilePlugin",
-            "listDir",
+            "list",
             [dirName]
         );
     }
