@@ -29,7 +29,7 @@ Removes the file or folder specified in ```fileName```. If ```fileName```is a **
    
 ### Getting a file's URL
       
-	window.plugins.simpleFile.getURL(fileName, successCallback, errorCallback)**
+	window.plugins.simpleFile.getURL(fileName, successCallback, errorCallback)
 
 Provides the URL to reference a file from inside the browser. 
      
