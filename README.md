@@ -1,48 +1,64 @@
 SimpleFile
 ==========
 
-SimpleFile is a phonegap plugin that lets wou read,write files into the app-private local filesysten.
+SimpleFile is a Cordova/Phonegap plugin that lets you read and write files from the app's private local filesysten.
 
-You can also create/remove directories, extract a URI from a file and download files from the web.
+You can also create/remove directories, extract the URI from a file and download remote files.
 
-jsAPI
+It currently features support for Android devices, but iOS is on the road. 
+
+Javascript API
 -----
+### Reading files
 
-- **readFile: function readFile(fileName, successCallback, errorCallback)**
+	window.plugins.simpleFile.read(fileName, successCallback, errorCallback)
 
-reads the contents of a file in the first parameter of successCallback
+Reads the contents of a file and provides them to the given successCallback.
+
+### Writing to a file
    
-- **writeFile: function(fileName, fileData, successCallback, errorCallback)**
+	window.plugins.simpleFile.write(fileName, contents, successCallback, errorCallback)
 
-wrtes fileData to fileName. If fileName contains directories, they will be created if they does not exist.
+Writes the contents in ```contents``` to the path provided in ```fileName```. This function will create any folders in ```fileName``` that do not exist yet. 
+
+### Removing a file or folder
+
+	window.plugins.simpleFile.remove(fileName, successCallback, errorCallback)
+
+Removes the file or folder specified in ```fileName```. If ```fileName```is a **folder**, all of its contents are removed as well. 
    
-- **deleteFile: function(fileName, successCallback, errorCallback)**
+### Getting a file's URL
+      
+	window.plugins.simpleFile.getURL(fileName, successCallback, errorCallback)**
 
-deletes the file
-    
-- **getUrlFile: function(fileName, successCallback, errorCallback)**
-
-returns the url of a file
+Provides the URL to reference a file from inside the browser. 
      
-- **downloadFile: function(url, fileName, successCallback, errorCallback)**
+### Downloading remote files
 
-downloads a file and crete/replace the file in the filesystem.
-If fileName contains directories, they will be created if they does not exist.
-    
-- **createDir: function(dirName, successCallback, errorCallback)**
+	window.plugins.simpleFile.download(url, fileName, successCallback, errorCallback)
 
-creates a directory and all the parent directories if the does not exist.
-   
-- **deleteDir: function(dirName, successCallback, errorCallback)**
+Downloads a file and saves the contents to the file specified in ```fileName```.
+This function will create any folders in ```fileName``` that do not exist yet. 
 
-deletes a directory and all its contents
-   
-- **listDir: function(dirName, successCallback, errorCallback)**
+### Creating a folder
 
-returns am array of obects in the first parameter of successCall.
+	window.plugins.simpleFile.createFolder(dirName, successCallback, errorCallback)
 
-Each object has two values: name (name) and isDirectory (boolean)
+Creates a folder and all the parent directories that do not exist yet. 
 
-If you want to list the root directory just set dirName to "" or to "."
+### Listing a folder's elements
+
+	window.plugins.simpleFile.list(folderName, successCallback, errorCallback)**
+
+Provides the ```successCallback``` function with an array of objects, containing the files and folders contained inside the ```folderName``` directory.
+
+Every object in the array has the following structure:
+
+	{
+		name: "file.txt",
+		isFolder: false
+	}
+
+To list the root directory, just set ```folderName``` to either ```""``` or ```"."```
 
 

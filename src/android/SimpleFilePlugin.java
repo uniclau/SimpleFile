@@ -25,8 +25,8 @@ public class SimpleFilePlugin extends CordovaPlugin {
 	
 	   @Override
 	    public void onPause(boolean multitasking) {
-	        Log.d(TAG, "onPause");
-	        URLNetRequester.CancelAll();
+	        //Log.d(TAG, "onPause");
+	        //URLNetRequester.CancelAll();
 	        super.onPause(multitasking);
 	    }
 
@@ -48,12 +48,12 @@ public class SimpleFilePlugin extends CordovaPlugin {
 	public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
 		try {
 			final Context ctx= this.cordova.getActivity();
-			if ("readFile".equals(action)) {
+			if ("read".equals(action)) {
 				String fileName = args.getString(0);
 				
 			    File f= new File(ctx.getFilesDir().getAbsolutePath() + "/" + fileName);
 				if (!f.exists()) {
-				    Log.d(TAG, "File does not exist:" + fileName);
+				    Log.d(TAG, "The file does not exist:" + fileName);
 				    callbackContext.error("File does not exist");
 				    return false;
 				}
@@ -66,7 +66,7 @@ public class SimpleFilePlugin extends CordovaPlugin {
 				callbackContext.success(data64);
 			    return true; 		
 			}
-			if ("writeFile".equals(action)) {			
+			if ("write".equals(action)) {			
 				String fileName = args.getString(0);
 				String data64 = args.getString(1);
 				byte []data = Base64.decode(data64, Base64.DEFAULT);
@@ -90,16 +90,19 @@ public class SimpleFilePlugin extends CordovaPlugin {
 				callbackContext.success();
 			    return true; 		
 			}
-			if ("deleteFile".equals(action)) {
+			if ("remove".equals(action)) {
 				String fileName = args.getString(0);
 				File f= new File(ctx.getFilesDir().getAbsolutePath() + "/" + fileName);
 				if (f.exists()) {
-					f.delete();
+					if (dir.isDirectory())
+						DeleteRecursive(f);
+					else
+						f.delete();
 				}
 				callbackContext.success();
-			    return true; 		
+			    return true;	
 			}
-			if ("downloadFile".equals(action)) {
+			if ("download".equals(action)) {
 				String url = args.getString(0);
 				final String fileName = args.getString(1);
 				
@@ -136,7 +139,7 @@ public class SimpleFilePlugin extends CordovaPlugin {
 				});
 			    return true; 		
 			}
-			if ("getUrlFile".equals(action)) {
+			if ("getURL".equals(action)) {
 				
 				String fileName = args.getString(0);
 				String res = "file://" + ctx.getFilesDir() + "/" + fileName;
@@ -144,23 +147,14 @@ public class SimpleFilePlugin extends CordovaPlugin {
 				callbackContext.success(res);
 			    return true; 		
 			}
-			if ("createDir".equals(action)) {
+			if ("create".equals(action)) {
 				String dirName = args.getString(0);
 				File dir = new File(ctx.getFilesDir().getAbsolutePath() + "/" + dirName);
 				dir.mkdirs();
 				callbackContext.success();
 			    return true; 		
 			}
-			if ("deleteDir".equals(action)) {
-				String dirName = args.getString(0);
-				File dir = new File(ctx.getFilesDir().getAbsolutePath() + "/" + dirName);
-				if (dir.isDirectory()) {
-					DeleteRecursive(dir);
-				}
-				callbackContext.success();
-			    return true; 		
-			}
-			if ("listDir".equals(action)) {
+			if ("list".equals(action)) {
 				String dirName = args.getString(0);
 				File dir;
 				if ("".equals(dirName) || ".".equals(dirName)) {
@@ -170,14 +164,14 @@ public class SimpleFilePlugin extends CordovaPlugin {
 				}
 					
 				if (!dir.exists()) {
-				    Log.d(TAG, "Directory does not exist:" + dirName);
-				    callbackContext.error("File does not exist");
+				    Log.d(TAG, "The folder does not exist:" + dirName);
+				    callbackContext.error("The file does not exist");
 				    return false;	
 				}
 				
 				if (!dir.isDirectory()) {
-				    Log.d(TAG, "It is not a directory:" + dirName);
-				    callbackContext.error("File does not exist");
+				    Log.d(TAG, dirName + " is not a directory");
+				    callbackContext.error(dirName + " is not a directory");
 				    return false;						
 				}
 				
@@ -188,7 +182,7 @@ public class SimpleFilePlugin extends CordovaPlugin {
 				for (i=0; i<childs.length; i++) {
 					JSONObject fileObject = new JSONObject();
 					fileObject.put("name", childs[i].getName());
-					fileObject.put("isDirectory", childs[i].isDirectory());
+					fileObject.put("isFolder", childs[i].isDirectory());
 					res.put(fileObject);
 				}
 				callbackContext.success(res);
