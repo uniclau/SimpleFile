@@ -32,6 +32,7 @@ public class URLNetRequester extends Thread {
 	
 	
 	public static void CnacelRequest(String CancelString) {
+		Log.d("URLNetRequester", "Individual Cancel");
 		Iterator<URLNetRequester> iter=requests.iterator();
 		while (iter.hasNext()) {
 			URLNetRequester R=iter.next();
@@ -42,6 +43,7 @@ public class URLNetRequester extends Thread {
 	}
 	
 	public static void CancelAll() {
+		Log.d("URLNetRequester", "Cancel All");
 		Iterator<URLNetRequester> iter=requests.iterator();
 		while (iter.hasNext()) {
 			URLNetRequester R=iter.next();
@@ -126,10 +128,12 @@ public class URLNetRequester extends Thread {
 			    Res=r.toByteArray();
 			    response(true);
 		     } else {
+				Log.d("URLNetRequester", "Null entity");
 				response(false);
 		     }
 		     removeFromPool();
 		} catch (Exception e) {
+			Log.d("URLNetRequester", e.getMessage());
 			response(false);
 			removeFromPool();
 			return;
