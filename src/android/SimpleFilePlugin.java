@@ -43,21 +43,30 @@ public class SimpleFilePlugin extends CordovaPlugin {
 
 		    fileOrDirectory.delete();
 		}
+
+		private String getRootPath(ctx, String type) {
+			if ("external".equals(type)) {
+				return ctx.getExternalFilesDir(null).getAbsolutePath();
+			} else {
+				return ctx.getFilesDir().getAbsolutePath();				
+			}
+		}
 	    
 	@Override
 	public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
 		try {
 			final Context ctx= this.cordova.getActivity();
 			if ("read".equals(action)) {
-				String fileName = args.getString(0);
+				String rootPath = getRootPath(args.getString(0));
+				String fileName = args.getString(1);
 				
-			    File f= new File(ctx.getFilesDir().getAbsolutePath() + "/" + fileName);
+			    File f= new File(rootPath + "/" + fileName);
 				if (!f.exists()) {
 				    Log.d(TAG, "The file does not exist:" + fileName);
 				    callbackContext.error("File does not exist");
 				    return false;
 				}
-				FileInputStream is = new FileInputStream(ctx.getFilesDir().getAbsolutePath() + "/" +fileName);
+				FileInputStream is = new FileInputStream(rootPath + "/" +fileName);
 				byte buff[] = new byte[(int)f.length()];
 				is.read(buff);
 				String data64 = Base64.encodeToString(buff,  Base64.DEFAULT | Base64.NO_WRAP);
@@ -67,12 +76,13 @@ public class SimpleFilePlugin extends CordovaPlugin {
 			    return true; 		
 			}
 			if ("write".equals(action)) {			
-				String fileName = args.getString(0);
-				String data64 = args.getString(1);
+				String rootPath = getRootPath(args.getString(0));
+				String fileName = args.getString(1);
+				String data64 = args.getString(2);
 				byte []data = Base64.decode(data64, Base64.DEFAULT);
 				  
 				  
-				File f= new File(ctx.getFilesDir().getAbsolutePath() + "/" +fileName);
+				File f= new File(rootPath + "/" +fileName);
 				if (f.exists()) {
 					f.delete();
 				}
@@ -81,7 +91,7 @@ public class SimpleFilePlugin extends CordovaPlugin {
 				dir.mkdirs();
 								
 				FileOutputStream fstream;
-				fstream = new FileOutputStream(ctx.getFilesDir().getAbsolutePath() + "/" +fileName);
+				fstream = new FileOutputStream(rootPath + "/" +fileName);
 				fstream.write(data);
 				fstream.flush();
 				fstream.close();
@@ -91,8 +101,9 @@ public class SimpleFilePlugin extends CordovaPlugin {
 			    return true; 		
 			}
 			if ("remove".equals(action)) {
-				String fileName = args.getString(0);
-				File f= new File(ctx.getFilesDir().getAbsolutePath() + "/" + fileName);
+				String rootPath = getRootPath(args.getString(0));
+				String fileName = args.getString(1);
+				File f= new File(rootPath + "/" + fileName);
 				if (f.exists()) {
 					if (f.isDirectory())
 						DeleteRecursive(f);
@@ -103,8 +114,9 @@ public class SimpleFilePlugin extends CordovaPlugin {
 			    return true;	
 			}
 			if ("download".equals(action)) {
-				String url = args.getString(0);
-				final String fileName = args.getString(1);
+				final String rootPath = getRootPath(args.getString(0));
+				String url = args.getString(1);
+				final String fileName = args.getString(2);
 				
 				final CallbackContext cb = callbackContext;
 				
@@ -117,7 +129,7 @@ public class SimpleFilePlugin extends CordovaPlugin {
 						}
 						
 						try {
-							File f= new File(ctx.getFilesDir().getAbsolutePath() + "/" +fileName);
+							File f= new File(rootPath + "/" +fileName);
 							if (f.exists()) {
 								f.delete();
 							}
@@ -126,7 +138,7 @@ public class SimpleFilePlugin extends CordovaPlugin {
 							dir.mkdirs();							
 							
 							FileOutputStream fstream;
-							fstream = new FileOutputStream(ctx.getFilesDir().getAbsolutePath() + "/" +fileName);
+							fstream = new FileOutputStream(rootPath + "/" +fileName);
 							fstream.write(Res);
 							fstream.flush();
 							fstream.close();
@@ -140,27 +152,29 @@ public class SimpleFilePlugin extends CordovaPlugin {
 			    return true; 		
 			}
 			if ("getURL".equals(action)) {
-				
-				String fileName = args.getString(0);
-				String res = "file://" + ctx.getFilesDir() + "/" + fileName;
+				String rootPath = getRootPath(args.getString(0));				
+				String fileName = args.getString(1);
+				String res = "file://" + rootPath + "/" + fileName;
 				
 				callbackContext.success(res);
 			    return true; 		
 			}
 			if ("create".equals(action)) {
-				String dirName = args.getString(0);
-				File dir = new File(ctx.getFilesDir().getAbsolutePath() + "/" + dirName);
+				String rootPath = getRootPath(args.getString(0));				
+				String dirName = args.getString(1);
+				File dir = new File(rootPath + "/" + dirName);
 				dir.mkdirs();
 				callbackContext.success();
 			    return true; 		
 			}
 			if ("list".equals(action)) {
-				String dirName = args.getString(0);
+				String rootPath = getRootPath(args.getString(0));				
+				String dirName = args.getString(1);
 				File dir;
 				if ("".equals(dirName) || ".".equals(dirName)) {
-					dir = new File(ctx.getFilesDir().getAbsolutePath());					
+					dir = new File(rootPath);					
 				} else {
-					dir = new File(ctx.getFilesDir().getAbsolutePath() + "/" + dirName);
+					dir = new File(rootPath + "/" + dirName);
 				}
 					
 				if (!dir.exists()) {
