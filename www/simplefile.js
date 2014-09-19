@@ -1,5 +1,7 @@
-var simpleFile = {
-    read: function(fileName, successCallback, errorCallback) {
+function FileSystem(root ) {
+    var self = this;
+    self.root = root;
+    self.read= function(fileName, successCallback, errorCallback) {
         cordova.exec(
             function(data64) {
                 console.log(data64);
@@ -8,64 +10,70 @@ var simpleFile = {
             errorCallback,
             "SimpleFilePlugin",
             "read",
-            [fileName]
+            [self.root,fileName]
         );
-    },
-    write: function(fileName, fileData, successCallback, errorCallback) {
+    };
+    self.write= function(fileName, fileData, successCallback, errorCallback) {
         var data64=btoa(fileData);
         cordova.exec(
             successCallback,
             errorCallback,
             "SimpleFilePlugin",
             "write",
-            [fileName, data64]
+            [root, fileName, data64]
         );
-    },
-    remove: function(fileName, successCallback, errorCallback) {
+    };
+    self.remove= function(fileName, successCallback, errorCallback) {
         cordova.exec(
             successCallback,
             errorCallback,
             "SimpleFilePlugin",
             "remove",
-            [fileName]
+            [root, fileName]
         );
-    },
-    getURL: function(fileName, successCallback, errorCallback) {
+    };
+    self.getUrl= function(fileName, successCallback, errorCallback) {
         cordova.exec(
             successCallback,
             errorCallback,
             "SimpleFilePlugin",
-            "getURL",
-            [fileName]
+            "getUrl",
+            [root, fileName]
         );
-    },
-    download: function(url, fileName, successCallback, errorCallback) {
+    };
+    self.download= function(url, fileName, successCallback, errorCallback) {
         cordova.exec(
             successCallback,
             errorCallback,
             "SimpleFilePlugin",
             "download",
-            [url,fileName]
+            [root,url,fileName]
         );
-    },
-    createFolder: function(dirName, successCallback, errorCallback) {
+    };
+    self.createFolder= function(dirName, successCallback, errorCallback) {
         cordova.exec(
             successCallback,
             errorCallback,
             "SimpleFilePlugin",
             "createFolder",
-            [dirName]
+            [root,dirName]
         );
-    },
-    list: function(dirName, successCallback, errorCallback) {
+    };
+    self.list= function(dirName, successCallback, errorCallback) {
         cordova.exec(
             successCallback,
             errorCallback,
             "SimpleFilePlugin",
             "list",
-            [dirName]
+            [root,dirName]
         );
-    }
+    };
+    return self;
+}
+
+var simpleFile = {
+    internal: new FileSystem("internal"),
+    extarnal: new FileSystem("external")
 };
 
 module.exports = simpleFile;

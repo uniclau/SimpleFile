@@ -57,7 +57,7 @@ public class SimpleFilePlugin extends CordovaPlugin {
 		try {
 			final Context ctx= this.cordova.getActivity();
 			if ("read".equals(action)) {
-				String rootPath = getRootPath(args.getString(0));
+				String rootPath = getRootPath(ctx,args.getString(0));
 				String fileName = args.getString(1);
 				
 			    File f= new File(rootPath + "/" + fileName);
@@ -76,7 +76,7 @@ public class SimpleFilePlugin extends CordovaPlugin {
 			    return true; 		
 			}
 			if ("write".equals(action)) {			
-				String rootPath = getRootPath(args.getString(0));
+				String rootPath = getRootPath(ctx,args.getString(0));
 				String fileName = args.getString(1);
 				String data64 = args.getString(2);
 				byte []data = Base64.decode(data64, Base64.DEFAULT);
@@ -101,7 +101,7 @@ public class SimpleFilePlugin extends CordovaPlugin {
 			    return true; 		
 			}
 			if ("remove".equals(action)) {
-				String rootPath = getRootPath(args.getString(0));
+				String rootPath = getRootPath(ctx,args.getString(0));
 				String fileName = args.getString(1);
 				File f= new File(rootPath + "/" + fileName);
 				if (f.exists()) {
@@ -114,7 +114,7 @@ public class SimpleFilePlugin extends CordovaPlugin {
 			    return true;	
 			}
 			if ("download".equals(action)) {
-				final String rootPath = getRootPath(args.getString(0));
+				final String rootPath = getRootPath(ctx,args.getString(0));
 				String url = args.getString(1);
 				final String fileName = args.getString(2);
 				
@@ -152,7 +152,7 @@ public class SimpleFilePlugin extends CordovaPlugin {
 			    return true; 		
 			}
 			if ("getURL".equals(action)) {
-				String rootPath = getRootPath(args.getString(0));				
+				String rootPath = getRootPath(ctx,args.getString(0));				
 				String fileName = args.getString(1);
 				String res = "file://" + rootPath + "/" + fileName;
 				
@@ -160,7 +160,7 @@ public class SimpleFilePlugin extends CordovaPlugin {
 			    return true; 		
 			}
 			if ("createFolder".equals(action)) {
-				String rootPath = getRootPath(args.getString(0));				
+				String rootPath = getRootPath(ctx,args.getString(0));				
 				String dirName = args.getString(1);
 				File dir = new File(rootPath + "/" + dirName);
 				dir.mkdirs();
@@ -168,7 +168,7 @@ public class SimpleFilePlugin extends CordovaPlugin {
 			    return true; 		
 			}
 			if ("list".equals(action)) {
-				String rootPath = getRootPath(args.getString(0));				
+				String rootPath = getRootPath(ctx,args.getString(0));				
 				String dirName = args.getString(1);
 				File dir;
 				if ("".equals(dirName) || ".".equals(dirName)) {
