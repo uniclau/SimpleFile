@@ -159,7 +159,7 @@ public class SimpleFilePlugin extends CordovaPlugin {
 				callbackContext.success(res);
 			    return true; 		
 			}
-			if ("create".equals(action)) {
+			if ("createFolder".equals(action)) {
 				String rootPath = getRootPath(args.getString(0));				
 				String dirName = args.getString(1);
 				File dir = new File(rootPath + "/" + dirName);

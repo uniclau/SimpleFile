@@ -30,12 +30,12 @@ var simpleFile = {
             [fileName]
         );
     },
-    getUrl: function(fileName, successCallback, errorCallback) {
+    getURL: function(fileName, successCallback, errorCallback) {
         cordova.exec(
             successCallback,
             errorCallback,
             "SimpleFilePlugin",
-            "getUrl",
+            "getURL",
             [fileName]
         );
     },

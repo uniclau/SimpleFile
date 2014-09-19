@@ -10,7 +10,7 @@
 
 
     <js-module src="www/simplefile.js" name="SimpleFile">
-        <clobbers target="window.simpleFile" />
+        <clobbers target="window.plugins.simpleFile" />
     </js-module>
 
     <!-- android -->
