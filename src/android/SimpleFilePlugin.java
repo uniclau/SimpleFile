@@ -94,7 +94,7 @@ public class SimpleFilePlugin extends CordovaPlugin {
 				String fileName = args.getString(0);
 				File f= new File(ctx.getFilesDir().getAbsolutePath() + "/" + fileName);
 				if (f.exists()) {
-					if (dir.isDirectory())
+					if (f.isDirectory())
 						DeleteRecursive(f);
 					else
 						f.delete();
