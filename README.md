@@ -29,7 +29,7 @@ Removes the file or folder specified in ```fileName```. If ```fileName```is a **
    
 ### Getting a file's URL
       
-	window.plugins.simpleFile.getURL(fileName, successCallback, errorCallback)**
+	window.plugins.simpleFile.getURL(fileName, successCallback, errorCallback)
 
 Provides the URL to reference a file from inside the browser. 
      
@@ -48,7 +48,7 @@ Creates a folder and all the parent directories that do not exist yet.
 
 ### Listing a folder's elements
 
-	window.plugins.simpleFile.list(folderName, successCallback, errorCallback)**
+	window.plugins.simpleFile.list(folderName, successCallback, errorCallback)
 
 Provides the ```successCallback``` function with an array of objects, containing the files and folders contained inside the ```folderName``` directory.
 
