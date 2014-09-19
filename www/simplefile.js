@@ -1,22 +1,23 @@
 var simpleFile = {
-    getFile: function(fileName, successCallback, errorCallback) {
+    readFile: function(fileName, successCallback, errorCallback) {
         cordova.exec(
             function(data64) {
+                console.log(data64);
                 successCallback(atob(data64));
             },
             errorCallback,
             "SimpleFilePlugin",
-            "getFile",
+            "readFile",
             [fileName]
         );
     },
-    setFile: function(fileName, fileData, successCallback, errorCallback) {
+    writeFile: function(fileName, fileData, successCallback, errorCallback) {
         var data64=btoa(fileData);
         cordova.exec(
             successCallback,
             errorCallback,
             "SimpleFilePlugin",
-            "setFile",
+            "writeFile",
             [fileName, data64]
         );
     },
@@ -62,6 +63,15 @@ var simpleFile = {
             errorCallback,
             "SimpleFilePlugin",
             "deleteDir",
+            [dirName]
+        );
+    },
+    listDir: function(dirName, successCallback, errorCallback) {
+        cordova.exec(
+            successCallback,
+            errorCallback,
+            "SimpleFilePlugin",
+            "listDir",
             [dirName]
         );
     }

@@ -9,6 +9,9 @@ import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
+
+import com.uniclau.network.URLNetRequester;
 
 import android.content.Context;
 import android.util.Base64;
@@ -23,6 +26,7 @@ public class SimpleFilePlugin extends CordovaPlugin {
 	   @Override
 	    public void onPause(boolean multitasking) {
 	        Log.d(TAG, "onPause");
+	        URLNetRequester.CancelAll();
 	        super.onPause(multitasking);
 	    }
 
@@ -43,50 +47,52 @@ public class SimpleFilePlugin extends CordovaPlugin {
 	@Override
 	public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
 		try {
-			Context ctx= this.cordova.getActivity();
-			if ("getFile".equals(action)) {
+			final Context ctx= this.cordova.getActivity();
+			if ("readFile".equals(action)) {
 				String fileName = args.getString(0);
 				
-			    File f= ctx.getFileStreamPath(fileName);
+			    File f= new File(ctx.getFilesDir().getAbsolutePath() + "/" + fileName);
 				if (!f.exists()) {
 				    Log.d(TAG, "File does not exist:" + fileName);
 				    callbackContext.error("File does not exist");
 				    return false;
 				}
-				FileInputStream is = ctx.openFileInput(fileName); //$NON-NLS-1$
+				FileInputStream is = new FileInputStream(ctx.getFilesDir().getAbsolutePath() + "/" +fileName);
 				byte buff[] = new byte[(int)f.length()];
 				is.read(buff);
-				String data64 = Base64.encodeToString(buff,  Base64.DEFAULT);
+				String data64 = Base64.encodeToString(buff,  Base64.DEFAULT | Base64.NO_WRAP);
 				is.close();
 				
 				callbackContext.success(data64);
 			    return true; 		
 			}
-			if ("setFile".equals(action)) {			
+			if ("writeFile".equals(action)) {			
 				String fileName = args.getString(0);
 				String data64 = args.getString(1);
 				byte []data = Base64.decode(data64, Base64.DEFAULT);
 				  
 				  
-				File f= ctx.getFileStreamPath(fileName);
+				File f= new File(ctx.getFilesDir().getAbsolutePath() + "/" +fileName);
 				if (f.exists()) {
 					f.delete();
 				}
 				
-				f.mkdirs();
-				
+				File dir = f.getParentFile();
+				dir.mkdirs();
+								
 				FileOutputStream fstream;
-				fstream = ctx.openFileOutput(fileName, Context.MODE_PRIVATE);
+				fstream = new FileOutputStream(ctx.getFilesDir().getAbsolutePath() + "/" +fileName);
 				fstream.write(data);
 				fstream.flush();
 				fstream.close();
+				
 			         
 				callbackContext.success();
 			    return true; 		
 			}
 			if ("deleteFile".equals(action)) {
 				String fileName = args.getString(0);
-				File f= ctx.getFileStreamPath(fileName);
+				File f= new File(ctx.getFilesDir().getAbsolutePath() + "/" + fileName);
 				if (f.exists()) {
 					f.delete();
 				}
@@ -94,7 +100,40 @@ public class SimpleFilePlugin extends CordovaPlugin {
 			    return true; 		
 			}
 			if ("downloadFile".equals(action)) {
-				callbackContext.success();
+				String url = args.getString(0);
+				final String fileName = args.getString(1);
+				
+				final CallbackContext cb = callbackContext;
+				
+				URLNetRequester.NewRequest("", url, url, new URLNetRequester.AnswerHandler() {
+					
+					@Override
+					public void OnAnswer(Object CallbackParam, byte[] Res) {
+						if (Res == null) {
+							cb.error("Network Error");
+						}
+						
+						try {
+							File f= new File(ctx.getFilesDir().getAbsolutePath() + "/" +fileName);
+							if (f.exists()) {
+								f.delete();
+							}
+
+							File dir = f.getParentFile();
+							dir.mkdirs();							
+							
+							FileOutputStream fstream;
+							fstream = new FileOutputStream(ctx.getFilesDir().getAbsolutePath() + "/" +fileName);
+							fstream.write(Res);
+							fstream.flush();
+							fstream.close();
+						         
+							cb.success();
+						} catch(Exception e) {
+						    cb.error(e.getMessage());
+						}
+					}
+				});
 			    return true; 		
 			}
 			if ("getUrlFile".equals(action)) {
@@ -105,26 +144,54 @@ public class SimpleFilePlugin extends CordovaPlugin {
 				callbackContext.success(res);
 			    return true; 		
 			}
-			if ("ccreateDirectory".equals(action)) {
+			if ("createDir".equals(action)) {
 				String dirName = args.getString(0);
-				if ( ! "/".equals(dirName.substring(dirName.length() -1))) {
-					dirName=dirName+"/";
-				}
-				File dir = new File(dirName);
+				File dir = new File(ctx.getFilesDir().getAbsolutePath() + "/" + dirName);
 				dir.mkdirs();
 				callbackContext.success();
 			    return true; 		
 			}
-			if ("deleteDirectory".equals(action)) {
+			if ("deleteDir".equals(action)) {
 				String dirName = args.getString(0);
-				File dir = new File(dirName);
+				File dir = new File(ctx.getFilesDir().getAbsolutePath() + "/" + dirName);
 				if (dir.isDirectory()) {
 					DeleteRecursive(dir);
-				} else {
-				    callbackContext.error("It is not a directory");
-				    return false;		
 				}
 				callbackContext.success();
+			    return true; 		
+			}
+			if ("listDir".equals(action)) {
+				String dirName = args.getString(0);
+				File dir;
+				if ("".equals(dirName) || ".".equals(dirName)) {
+					dir = new File(ctx.getFilesDir().getAbsolutePath());					
+				} else {
+					dir = new File(ctx.getFilesDir().getAbsolutePath() + "/" + dirName);
+				}
+					
+				if (!dir.exists()) {
+				    Log.d(TAG, "Directory does not exist:" + dirName);
+				    callbackContext.error("File does not exist");
+				    return false;	
+				}
+				
+				if (!dir.isDirectory()) {
+				    Log.d(TAG, "It is not a directory:" + dirName);
+				    callbackContext.error("File does not exist");
+				    return false;						
+				}
+				
+				JSONArray res = new JSONArray();
+				
+				File []childs =dir.listFiles();
+				int i;
+				for (i=0; i<childs.length; i++) {
+					JSONObject fileObject = new JSONObject();
+					fileObject.put("name", childs[i].getName());
+					fileObject.put("isDirectory", childs[i].isDirectory());
+					res.put(fileObject);
+				}
+				callbackContext.success(res);
 			    return true; 		
 			}
 			return false;		
