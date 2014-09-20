@@ -72,7 +72,7 @@ To list the root directory, just set ```folderName``` to either ```""``` or ```"
 Example
 ---
 
-The next example copies the phonegap logo to the internal directory sets that logo as the current page:
+The next example copies the phonegap logo to the internal directory and sets that logo.png as the current page of the webView:
 
 ```
 window.plugins.simpleFile.bundle.read("www/img/logo.png",function(data) {
