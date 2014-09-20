@@ -20,7 +20,7 @@ function FileSystem(root ) {
             errorCallback,
             "SimpleFilePlugin",
             "write",
-            [root, fileName, data64]
+            [self.root, fileName, data64]
         );
     };
     self.remove= function(fileName, successCallback, errorCallback) {
@@ -29,7 +29,7 @@ function FileSystem(root ) {
             errorCallback,
             "SimpleFilePlugin",
             "remove",
-            [root, fileName]
+            [self.root, fileName]
         );
     };
     self.getUrl= function(fileName, successCallback, errorCallback) {
@@ -38,7 +38,7 @@ function FileSystem(root ) {
             errorCallback,
             "SimpleFilePlugin",
             "getUrl",
-            [root, fileName]
+            [self.root, fileName]
         );
     };
     self.download= function(url, fileName, successCallback, errorCallback) {
@@ -47,7 +47,7 @@ function FileSystem(root ) {
             errorCallback,
             "SimpleFilePlugin",
             "download",
-            [root,url,fileName]
+            [self.root,url,fileName]
         );
     };
     self.createFolder= function(dirName, successCallback, errorCallback) {
@@ -56,7 +56,7 @@ function FileSystem(root ) {
             errorCallback,
             "SimpleFilePlugin",
             "createFolder",
-            [root,dirName]
+            [self.root,dirName]
         );
     };
     self.list= function(dirName, successCallback, errorCallback) {
@@ -65,15 +65,20 @@ function FileSystem(root ) {
             errorCallback,
             "SimpleFilePlugin",
             "list",
-            [root,dirName]
+            [self.root,dirName]
         );
     };
     return self;
 }
 
+
+
 var simpleFile = {
     internal: new FileSystem("internal"),
-    extarnal: new FileSystem("external")
+    external: new FileSystem("external"),
+    bundle: new FileSystem("bundle")
 };
+
+console.log("SimpleFileCalled");
 
 module.exports = simpleFile;
