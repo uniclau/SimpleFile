@@ -33,11 +33,15 @@ Reads the contents of a file and provides them to the given successCallback.
 
 Writes the contents in ```contents``` to the path provided in ```fileName```. This function will create any folders in ```fileName``` that do not exist yet. 
 
+**Note:** This will not work if you use it with the ```bundle``` filesystem. 
+
 ### Removing a file or folder
 
 	window.plugins.simpleFile.<fs>.remove(fileName, successCallback, errorCallback)
 
 Removes the file or folder specified in ```fileName```. If ```fileName```is a **folder**, all of its contents are removed as well. 
+
+**Note:** This will not work if you use it with the ```bundle``` filesystem. 
    
 ### Getting a file's URL
       
@@ -52,11 +56,15 @@ Provides the URL to reference a file from inside the browser.
 Downloads a file and saves the contents to the file specified in ```fileName```.
 This function will create any folders in ```fileName``` that do not exist yet. 
 
+**Note:** This will not work if you use it with the ```bundle``` filesystem. 
+
 ### Creating a folder
 
 	window.plugins.simpleFile.<fs>.createFolder(dirName, successCallback, errorCallback)
 
 Creates a folder and all the parent directories that do not exist yet. 
+
+**Note:** This will not work if you use it with the ```bundle``` filesystem. 
 
 ### Listing folders
 
