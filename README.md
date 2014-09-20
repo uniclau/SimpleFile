@@ -1,21 +1,25 @@
 SimpleFile
 ==========
 
-SimpleFile is a Cordova/Phonegap plugin that lets you read and write files from the app's private local filesysten.
+SimpleFile is a Cordova/Phonegap plugin that lets you read and write files from the filesystem.
 
-You can also create/remove directories, extract the URI from a file and download remote files.
+You can also create/remove directories, extract the URI from a file and download remote content to a file.
 
-It currently features support for Android devices, but iOS is on the road. 
+It currently features support for **Android** devices, but iOS is on the road. 
 
 Javascript API
 -----
 
-The Simple plugin has an object for each fileSystems ( <fs> )
-Currently, available fs arr:
+The plugin exposes the ```window.plugins.simpleFile``` object. It provides access to three different **file systems** through their corresponding object:
 
-- internal:  Private files available only to the app.
-- external: Public file systems
-- bundle: Files contained in the bundle/assets (read only)
+* ```plugins.simpleFile.internal```
+	* Private files stored in the app's data folder.
+* ```plugins.simpleFile.external```
+	* On Android, it provides access to the device's SD card. It defaults to the private app storage if no SD card is not present in older devices. 
+	* On iPhone, it will default to ```internal```
+* ```plugins.simpleFile.bundle```
+	* Files packaged in the app binary (i.e. ```www```)
+	* This file system is read only
 
 ### Reading files
 
@@ -54,7 +58,7 @@ This function will create any folders in ```fileName``` that do not exist yet.
 
 Creates a folder and all the parent directories that do not exist yet. 
 
-### Listing a folder's elements
+### Listing folders
 
 	window.plugins.simpleFile.<fs>.list(folderName, successCallback, errorCallback)
 
@@ -74,21 +78,22 @@ Example
 
 The next example copies the phonegap logo to the internal directory and sets that logo.png as the current page of the webView:
 
-```
-window.plugins.simpleFile.bundle.read("www/img/logo.png",function(data) {
-	window.plugins.simpleFile.internal.write("logo.png", data, function() {
-		window.plugins.simpleFile.internal.getUrl("logo.png", function(url) {
-			alert(url);
-			window.location.href =url;
+	window.plugins.simpleFile.bundle.read("www/img/logo.png",function(data) {
+	
+		window.plugins.simpleFile.internal.write("logo.png", data, function() {
+	
+			window.plugins.simpleFile.internal.getUrl("logo.png", function(url) {
+				alert(url);
+				window.location.href = url;
+			},function(err) {
+				alert("ERROR in getUrl: "+err);
+			});
 		},function(err) {
-			alert("ERROR: getUrl: "+err);
+			alert("ERROR: write: "+err);
 		});
 	},function(err) {
-		alert("ERROR: write: "+err);
+		alert("ERROR: read: "+err);
 	});
-},function(err) {
-	alert("ERROR: read: "+err);
-});
-```
+
 
 
