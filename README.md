@@ -74,20 +74,20 @@ Example
 
 The next example copies the phonegap logo to the internal directory sets that logo as the current page:
 
-   window.plugins.simpleFile.bundle.read("www/img/logo.png",function(data) {
-        window.plugins.simpleFile.internal.write("logo.png", data, function() {
-            window.plugins.simpleFile.internal.getUrl("logo.png", function(url) {
-                alert(url);
-                window.location.href =url;
-            },function(err) {
-                alert("ERROR: getUrl: "+err);
-            });
-        },function(err) {
-            alert("ERROR: write: "+err);
-        });
-    },function(err) {
-        alert("ERROR: read: "+err);
-    });
+window.plugins.simpleFile.bundle.read("www/img/logo.png",function(data) {
+ 	window.plugins.simpleFile.internal.write("logo.png", data, function() {
+ 		window.plugins.simpleFile.internal.getUrl("logo.png", function(url) {
+ 			alert(url);
+ 			window.location.href =url;
+ 		},function(err) {
+ 			alert("ERROR: getUrl: "+err);
+ 		});
+ 	},function(err) {
+ 		alert("ERROR: write: "+err);
+ 	});
+ },function(err) {
+ 	alert("ERROR: read: "+err);
+ });
 
 
 
