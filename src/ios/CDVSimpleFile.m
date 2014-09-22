@@ -18,7 +18,7 @@
     if ([@"external" isEqualToString:type]) {
         res = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0];
     } else if ([@"internal" isEqualToString:type]) {
-        res = [NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES) objectAtIndex:0];
+        res = [[NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES) objectAtIndex:0] stringByAppendingPathComponent: @"NoCloud"];
     } else if ([@"bundle" isEqualToString:type]) {
         res = [[NSBundle mainBundle] bundlePath];
     } else if ([@"cache" isEqualToString:type]) {

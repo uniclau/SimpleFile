@@ -56,8 +56,14 @@ public class SimpleFilePlugin extends CordovaPlugin {
 	            	String packageName = ctx.getPackageName();
 	            	return "/data/data/" + packageName;
 	            }
-			} else {
+			} else if ("internal".equals(type)) {
 				return ctx.getFilesDir().getAbsolutePath();				
+			} else if ("cache".equals(type)) {
+				return ctx.getCacheDir().getAbsolutePath();				
+			} else if ("tmp".equals(type)) {
+				return ctx.getCacheDir().getAbsolutePath();				
+			} else {
+				return "";
 			}
 		}
 	    
