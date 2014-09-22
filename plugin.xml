@@ -32,15 +32,15 @@
 
      <platform name="ios">
         <config-file target="config.xml" parent="/*">
-            <feature name="File">
+            <feature name="SimpleFilePlugin">
                 <param name="ios-package" value="CDVSimpleFile" />
                 <param name="onload" value="true" />
             </feature>
         </config-file>
         <header-file src="src/ios/CDVSimpleFile.h" />
         <source-file src="src/ios/CDVSimpleFile.m" />
-        <header-file src="src/ios/NetRequester.h" />
-        <source-file src="src/ios/NetRequester.m" />
+        <header-file src="src/ios/NetRequest.h" />
+        <source-file src="src/ios/NetRequest.m" />
 
         <framework src="AssetsLibrary.framework" />
         <framework src="MobileCoreServices.framework" />

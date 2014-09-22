@@ -2,12 +2,11 @@
 //  NetRequest.m
 //  Uniclau
 //
-//  Created by Jordi Moraleda on 12/02/12.
-//  Copyright (c) 2012 Uniclau. All rights reserved.
+//  Created by Jordi Bylina.
+//  Copyright (c) 2014 Uniclau. All rights reserved.
 //
 
 #import "NetRequest.h"
-#import "JSON.h"
 
 @implementation NetRequest
 
