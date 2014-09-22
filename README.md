@@ -81,6 +81,13 @@ Every object in the array has the following structure:
 
 To list the root directory, just set ```folderName``` to either ```""``` or ```"."```
 
+
+### Copy files / folders
+	
+	window.plugins.simpleFile.copy(FileSystemFrom,FileOrDirectoryFrom, FileSystemTo, FileOrDirectoryTo, successCallback, errorCallback)
+
+Copies the file or the folder and al it's subdirectories.
+
 Example
 ---
 

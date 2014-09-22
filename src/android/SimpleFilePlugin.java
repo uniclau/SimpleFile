@@ -230,6 +230,17 @@ public class SimpleFilePlugin extends CordovaPlugin {
 				if ("bundle".equals(root)) {
 					if (".".equals(dirName)) dirName="";
 					String [] files =ctx.getAssets().list(dirName);
+					if (files.length==0) {
+						
+						try {
+							// This function will raise an exception if it is a directory.
+							ctx.getAssets().open( dirName);
+						    Log.d(TAG, dirName + " it's not a directory");
+						    callbackContext.error(dirName + " is not a directory");
+						    return false;		
+						} catch (Exception e) {
+						}
+					}
 					
 					JSONArray res = new JSONArray();
 					
