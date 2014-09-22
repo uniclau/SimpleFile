@@ -5,7 +5,7 @@ SimpleFile is a Cordova/Phonegap plugin that lets you read and write files from 
 
 You can also create/remove directories, extract the URI from a file and download remote content to a file.
 
-It currently features support for **Android** devices, but iOS is on the road. 
+It currently features support for **Android** and **iOS**. 
 
 Javascript API
 -----
@@ -14,9 +14,13 @@ The plugin exposes the ```window.plugins.simpleFile``` object. It provides acces
 
 * ```plugins.simpleFile.internal```
 	* Private files stored in the app's data folder.
+	* On iOS: ```/var/mobile/Applications/<UUID>/Library/NoCloud```
+	* On Android: ```/data/data/<app-id>/files```
 * ```plugins.simpleFile.external```
 	* On Android, it provides access to the device's SD card. It defaults to the private app storage if no SD card is not present in older devices. 
-	* On iPhone, it will default to ```internal```
+	* On iOS: ```/var/mobile/Applications/<UUID>/Library/NoCloud```
+		* iPhones do not have external memory cards. Same as the ```internal``` filesystem.
+	* On Android: ```<sdcard>/```
 * ```plugins.simpleFile.bundle```
 	* Files packaged in the app binary (i.e. ```www```)
 	* This file system is read only
