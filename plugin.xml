@@ -29,4 +29,20 @@
         <source-file src="src/android/SimpleFilePlugin.java" target-dir="src/com/uniclau/simplefile" />      
         <source-file src="src/android/URLNetRequester.java" target-dir="src/com/uniclau/network" />      
      </platform>          
+
+     <platform name="ios">
+        <config-file target="config.xml" parent="/*">
+            <feature name="File">
+                <param name="ios-package" value="CDVSimpleFile" />
+                <param name="onload" value="true" />
+            </feature>
+        </config-file>
+        <header-file src="src/ios/CDVSimpleFile.h" />
+        <source-file src="src/ios/CDVSimpleFile.m" />
+        <header-file src="src/ios/NetRequester.h" />
+        <source-file src="src/ios/NetRequester.m" />
+
+        <framework src="AssetsLibrary.framework" />
+        <framework src="MobileCoreServices.framework" />
+    </platform>
 </plugin>
