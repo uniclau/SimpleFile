@@ -86,13 +86,17 @@ Every object in the array has the following structure:
 To list the root directory, just set ```folderName``` to either ```""``` or ```"."```
 
 
-### Copy files / folders
+### Copying files or folders
 	
-	window.plugins.simpleFile.copy(FileSystemFrom,FileOrDirectoryFrom, FileSystemTo, FileOrDirectoryTo, successCallback, errorCallback)
+	window.plugins.simpleFile.copy(originFilesystem, originFileOrFolder, destinationFilesystem, destinationFileOrFolder, successCallback, errorCallback)
 
-Copies the file or the folder and al it's subdirectories.
+Copies the file or folder (with all its contents) to the given destination.
 
-Example
+As an example:
+
+	window.plugins.simpleFile.copy('bundle', 'logo.png', 'internal', 'logo.png', successCallback, errorCallback)
+
+General example
 ---
 
 The next example copies the phonegap logo to the internal directory and sets that logo.png as the current page of the webView:
