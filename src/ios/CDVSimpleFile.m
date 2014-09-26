@@ -212,9 +212,15 @@ static const short _base64DecodingTable[256] = {
         NSString *root=[self getRootPath:[command.arguments objectAtIndex:0]];
         NSString *fileName = [command.arguments objectAtIndex:1];
         NSString *fullPathFile = [root stringByAppendingPathComponent:fileName];
-        NSData *d = [NSData dataWithContentsOfFile:fullPathFile];
-        NSString *d64 = [CDVSimpleFile encodeBase64WithData:d];
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:d64];
+        NSFileManager *fileManager = [NSFileManager defaultManager];
+        
+        if (![fileManager fileExistsAtPath:fullPathFile]) {
+            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"File does not exists"];
+        } else {
+            NSData *d = [NSData dataWithContentsOfFile:fullPathFile];
+            NSString *d64 = [CDVSimpleFile encodeBase64WithData:d];
+            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:d64];
+        }
     } @catch (NSException *e) {
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[e reason]];
     }
