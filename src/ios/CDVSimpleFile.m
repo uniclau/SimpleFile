@@ -369,7 +369,7 @@ static const short _base64DecodingTable[256] = {
                 [obj setValue:f forKey:@"name"];
                 BOOL isDir;
                 [fileManager fileExistsAtPath:f isDirectory:&isDir];
-                [obj setValue:[NSNumber numberWithBool:isDir] forKey:@"isDirectory"];
+                [obj setValue:[NSNumber numberWithBool:isDir] forKey:@"isFolder"];
                 [arr addObject:obj];
             }
             pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:arr];
