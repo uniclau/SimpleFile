@@ -31,7 +31,7 @@ function FileSystem(root ) {
             [self.root, fileName]
         );
     };
-    self.getUrl= function(fileName, successCallback, errorCallback) {
+    self.getURL= function(fileName, successCallback, errorCallback) {
         cordova.exec(
             successCallback,
             errorCallback,
