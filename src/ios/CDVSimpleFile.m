@@ -367,8 +367,9 @@ static const short _base64DecodingTable[256] = {
             for (NSString *f in contents ) {
                 NSMutableDictionary *obj = [[NSMutableDictionary alloc] init];
                 [obj setValue:f forKey:@"name"];
+                NSString *fullF = [fullPathFile stringByAppendingPathComponent:f];
                 BOOL isDir;
-                [fileManager fileExistsAtPath:f isDirectory:&isDir];
+                [fileManager fileExistsAtPath:fullF isDirectory:&isDir];
                 [obj setValue:[NSNumber numberWithBool:isDir] forKey:@"isFolder"];
                 [arr addObject:obj];
             }
