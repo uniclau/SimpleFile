@@ -105,6 +105,4 @@ var simpleFile = {
     }
 };
 
-console.log("SimpleFileCalled");
-
 module.exports = simpleFile;
