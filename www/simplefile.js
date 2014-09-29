@@ -78,30 +78,32 @@ var simpleFile = {
     cache: new FileSystem("cache"),
     tmp: new FileSystem("tmp"),
     "copy": function (fromFS, fromItem, toFS, toItem, cb, errcb) {
-        window.plugins.simpleFile[fromFS].list(fromItem, function(list) {
-            window.plugins.simpleFile[toFS].createFolder(toItem, function() {
-                async.each(list, function(f, cb2) {
-                    var newFrom = fromItem + "/" + f.name;
-                    var newTo = toItem + "/" + f.name;
-                    simpleFile.copy(fromFS, newFrom, toFS, newTo, function() {
-                        cb2();
+        setTimeout(function() {
+            window.plugins.simpleFile[fromFS].list(fromItem, function(list) {
+                window.plugins.simpleFile[toFS].createFolder(toItem, function() {
+                    async.each(list, function(f, cb2) {
+                        var newFrom = fromItem + "/" + f.name;
+                        var newTo = toItem + "/" + f.name;
+                        simpleFile.copy(fromFS, newFrom, toFS, newTo, function() {
+                            cb2();
+                        }, function(err) {
+                            cb2(err);
+                        });
                     }, function(err) {
-                        cb2(err);
+                        if (err) {
+                            errcb(err);
+                        } else {
+                            cb();
+                        }
                     });
-                }, function(err) {
-                    if (err) {
-                        errcb(err);
-                    } else {
-                        cb();
-                    }
-                });
-            }, errcb);
-        },function(err) {
-            // Might be a file
-            window.plugins.simpleFile[fromFS].read(fromItem, function(data) {
-                window.plugins.simpleFile[toFS].write(toItem,data, cb, errcb);
-            },errcb);
-        });
+                }, errcb);
+            },function(err) {
+                // Might be a file
+                window.plugins.simpleFile[fromFS].read(fromItem, function(data) {
+                    window.plugins.simpleFile[toFS].write(toItem,data, cb, errcb);
+                },errcb);
+            });
+        },50);
     }
 };
 
