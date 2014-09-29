@@ -4,8 +4,8 @@ function FileSystem(root) {
     self.read= function(fileName, successCallback, errorCallback) {
         cordova.exec(
             function(data64) {
--                successCallback(atob(data64));
--            },
+                successCallback(atob(data64));
+            },
             errorCallback,
             "SimpleFilePlugin",
             "read",
