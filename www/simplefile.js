@@ -1,4 +1,4 @@
-function FileSystem(root ) {
+function FileSystem(root) {
     var self = this;
     self.root = root;
     self.read= function(fileName, successCallback, errorCallback) {
@@ -106,7 +106,5 @@ var simpleFile = {
         },50);
     }
 };
-
-console.log("SimpleFileCalled");
 
 module.exports = simpleFile;
