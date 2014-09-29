@@ -84,15 +84,15 @@ var simpleFile = {
                     var newFrom = fromItem + "/" + f.name;
                     var newTo = toItem + "/" + f.name;
                     simpleFile.copy(fromFS, newFrom, toFS, newTo, function() {
-                        setTimeout(function() {cb2();}, 70);
+                        setTimeout(function() {cb2();}, 50);
                     }, function(err) {
-                        setTimeout(function() {cb2(err);}, 70);
+                        setTimeout(function() {cb2(err);}, 50);
                     });
                 }, function(err) {
                     if (err) {
-                        setTimeout(function() {errcb(err);}, 70);
+                        setTimeout(function() {errcb(err);}, 50);
                     } else {
-                        setTimeout(function() {cb();}, 70);
+                        setTimeout(function() {cb();}, 50);
                     }
                 });
             }, errcb);
