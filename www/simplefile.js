@@ -81,7 +81,7 @@ var simpleFile = {
         setTimeout(function() {
             window.plugins.simpleFile[fromFS].list(fromItem, function(list) {
                 window.plugins.simpleFile[toFS].createFolder(toItem, function() {
-                    async.each(list, function(f, cb2) {
+                    async.eachSeries(list, function(f, cb2) {
                         var newFrom = fromItem + "/" + f.name;
                         var newTo = toItem + "/" + f.name;
                         simpleFile.copy(fromFS, newFrom, toFS, newTo, function() {
