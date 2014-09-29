@@ -3,9 +3,6 @@ function FileSystem(root) {
     self.root = root;
     self.read= function(fileName, successCallback, errorCallback) {
         cordova.exec(
-            // function(data64) {
-            //     successCallback(atob(data64));
-            // },
             successCallback,
             errorCallback,
             "SimpleFilePlugin",
@@ -14,14 +11,13 @@ function FileSystem(root) {
         );
     };
     self.write= function(fileName, fileData, successCallback, errorCallback) {
-        // var data64=btoa(fileData);
+        var data64=btoa(fileData);
         cordova.exec(
             successCallback,
             errorCallback,
             "SimpleFilePlugin",
             "write",
-            // [self.root, fileName, data64]
-            [self.root, fileName, fileData]
+            [self.root, fileName, data64]
         );
     };
     self.remove= function(fileName, successCallback, errorCallback) {
