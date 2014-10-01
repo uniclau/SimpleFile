@@ -51,7 +51,7 @@ public class SimpleFilePlugin extends CordovaPlugin {
 		private String getRootPath(Context ctx, String type) {
 			if ("external".equals(type)) {
 				if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-					return ctx.getExternalFilesDir(null).getAbsolutePath();
+					return ctx.getExternalStorageDirectory(null).getAbsolutePath();
 	            } else {
 	            	String packageName = ctx.getPackageName();
 	            	return "/data/data/" + packageName;
