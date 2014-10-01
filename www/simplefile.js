@@ -78,32 +78,30 @@ var simpleFile = {
     cache: new FileSystem("cache"),
     tmp: new FileSystem("tmp"),
     "copy": function (fromFS, fromItem, toFS, toItem, cb, errcb) {
-        setTimeout(function() {
-            window.plugins.simpleFile[fromFS].list(fromItem, function(list) {
-                window.plugins.simpleFile[toFS].createFolder(toItem, function() {
-                    async.eachSeries(list, function(f, cb2) {
-                        var newFrom = fromItem + "/" + f.name;
-                        var newTo = toItem + "/" + f.name;
-                        simpleFile.copy(fromFS, newFrom, toFS, newTo, function() {
-                            cb2();
-                        }, function(err) {
-                            cb2(err);
-                        });
+        window.plugins.simpleFile[fromFS].list(fromItem, function(list) {
+            window.plugins.simpleFile[toFS].createFolder(toItem, function() {
+                async.eachSeries(list, function(f, cb2) {
+                    var newFrom = fromItem + "/" + f.name;
+                    var newTo = toItem + "/" + f.name;
+                    simpleFile.copy(fromFS, newFrom, toFS, newTo, function() {
+                        setTimeout(function() {cb2();}, 50);
                     }, function(err) {
-                        if (err) {
-                            errcb(err);
-                        } else {
-                            cb();
-                        }
+                        setTimeout(function() {cb2(err);}, 50);
                     });
-                }, errcb);
-            },function(err) {
-                // Might be a file
-                window.plugins.simpleFile[fromFS].read(fromItem, function(data) {
-                    window.plugins.simpleFile[toFS].write(toItem,data, cb, errcb);
-                },errcb);
-            });
-        },50);
+                }, function(err) {
+                    if (err) {
+                        setTimeout(function() {errcb(err);}, 50);
+                    } else {
+                        setTimeout(function() {cb();}, 50);
+                    }
+                });
+            }, errcb);
+        },function(err) {
+            // Might be a file
+            window.plugins.simpleFile[fromFS].read(fromItem, function(data) {
+                window.plugins.simpleFile[toFS].write(toItem, data, cb, errcb);
+            }, errcb);
+        });
     }
 };
 
