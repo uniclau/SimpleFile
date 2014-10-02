@@ -68,38 +68,48 @@ public class SimpleFilePlugin extends CordovaPlugin {
 	}
 
 	private boolean readFile(final Context ctx, JSONArray args, final CallbackContext callbackContext) throws Exception {
-		String root = args.getString(0);
-		String fileName = args.getString(1);
-		byte[] buff;
-		if ("bundle".equals(root)) {
-			AssetManager assets = ctx.getAssets();
-			InputStream is = assets.open(fileName);
-			ByteArrayOutputStream outstream = new ByteArrayOutputStream();
-			int bytesRead;
-			byte[] buf = new byte[4 * 1024]; // 4K buffer
-			while ((bytesRead = is.read(buf)) != -1) {
-				outstream.write(buf,0,bytesRead);
-			}
-			buff = outstream.toByteArray(); 
-		}
-		else {
-			String rootPath = getRootPath(ctx, root);
+		final String root = args.getString(0);
+		final String fileName = args.getString(1);
 
-			File f= new File(rootPath + "/" + fileName);
-			if (!f.exists()) {
-				Log.d(TAG, "The file does not exist:" + fileName);
-				callbackContext.error("The file does not exist");
-				return false;
+		cordova.getThreadPool().execute(new Runnable() {
+			public void run() {
+				try {
+					byte[] buff;
+					if ("bundle".equals(root)) {
+						AssetManager assets = ctx.getAssets();
+						InputStream is = assets.open(fileName);
+						ByteArrayOutputStream outstream = new ByteArrayOutputStream();
+						int bytesRead;
+						byte[] buf = new byte[4 * 1024]; // 4K buffer
+						while ((bytesRead = is.read(buf)) != -1) {
+							outstream.write(buf, 0, bytesRead);
+						}
+						buff = outstream.toByteArray();
+					}
+					else {
+						String rootPath = getRootPath(ctx, root);
+
+						File f = new File(rootPath + "/" + fileName);
+						if (!f.exists()) {
+							Log.d(TAG, "The file does not exist:" + fileName);
+							callbackContext.error("The file does not exist");
+							return false;
+						}
+						FileInputStream is = new FileInputStream(rootPath + "/" +fileName);
+						buff = new byte[(int)f.length()];
+						is.read(buff);
+						is.close();
+					}
+					String data64 = Base64.encodeToString(buff,  Base64.DEFAULT | Base64.NO_WRAP);
+					
+					callbackContext.success(data64);
+				}
+				catch(Exception e) {
+					callbackContext.error(e.getMessage());
+				}
 			}
-			FileInputStream is = new FileInputStream(rootPath + "/" +fileName);
-			buff = new byte[(int)f.length()];
-			is.read(buff);
-			is.close();
-		}
-		String data64 = Base64.encodeToString(buff,  Base64.DEFAULT | Base64.NO_WRAP);
-		
-		callbackContext.success(data64);
-		return true;
+		});
+		return true; 	
 	}
 
 	private boolean writeFile(final Context ctx, JSONArray args, final CallbackContext callbackContext) throws Exception {
@@ -134,7 +144,7 @@ public class SimpleFilePlugin extends CordovaPlugin {
 					callbackContext.success();
 				}
 				catch(Exception e) {
-					callbackContext.error(e.getMessage(););
+					callbackContext.error(e.getMessage());
 				}
 			}
 		});
@@ -236,74 +246,84 @@ public class SimpleFilePlugin extends CordovaPlugin {
 	}
 
 	private boolean list(final Context ctx, JSONArray args, final CallbackContext callbackContext) throws Exception {
-		String root = args.getString(0);
-		String dirName = args.getString(1);
-		if ("bundle".equals(root)) {
-			if (".".equals(dirName)) dirName="";
-			String [] files =ctx.getAssets().list(dirName);
-			if (files.length==0) {
-				try {
-					// This function will raise an exception if it is a directory.
-					ctx.getAssets().open( dirName);
-					Log.d(TAG, dirName + " it's not a directory");
-					callbackContext.error(dirName + " is not a directory");
-					return false;		
-				} catch (Exception e) {
-				}
-			}
-			
-			JSONArray res = new JSONArray();
-			int i;
-			for (i=0; i<files.length; i++) {
-				JSONObject fileObject = new JSONObject();
-				fileObject.put("name", files[i]);
-				fileObject.put("isFolder", true);
-				try {
-					String [] subFolders = ctx.getAssets().list("".equals(dirName) ? files[i] : dirName + "/" +files[i]);
-					if (subFolders.length == 0) {
-						fileObject.put("isFolder", false);							
-					}
-				} catch(Exception e) {
-					fileObject.put("isFolder", false);							
-				}
-				res.put(fileObject);
-			}
-			callbackContext.success(res);
-			return true;
-		} else {
-			String rootPath = getRootPath(ctx,root);				
-			File dir;
-			if ("".equals(dirName) || ".".equals(dirName)) {
-				dir = new File(rootPath);					
-			} else {
-				dir = new File(rootPath + "/" + dirName);
-			}
+		final String root = args.getString(0);
+		final String dirNameParam = args.getString(1);
 
-			if (!dir.exists()) {
-				Log.d(TAG, "The folder does not exist:" + dirName);
-				callbackContext.error("The file does not exist");
-				return false;	
+		cordova.getThreadPool().execute(new Runnable() {
+			public void run() {
+				try {
+					String dirName = dirNameParam;
+					if ("bundle".equals(root)) {
+						if (".".equals(dirName)) dirName = "";
+						String [] files = ctx.getAssets().list(dirName);
+						if (files.length == 0) {
+							try {
+								// This function will raise an exception if it is a directory.
+								ctx.getAssets().open( dirName);
+								Log.d(TAG, dirName + " it's not a directory");
+								callbackContext.error(dirName + " is not a directory");
+								return false;		
+							} catch (Exception e) {}
+						}
+						
+						JSONArray res = new JSONArray();
+						int i;
+						for (i=0; i<files.length; i++) {
+							JSONObject fileObject = new JSONObject();
+							fileObject.put("name", files[i]);
+							fileObject.put("isFolder", true);
+							try {
+								String [] subFolders = ctx.getAssets().list("".equals(dirName) ? files[i] : dirName + "/" +files[i]);
+								if (subFolders.length == 0) {
+									fileObject.put("isFolder", false);							
+								}
+							} catch(Exception e) {
+								fileObject.put("isFolder", false);							
+							}
+							res.put(fileObject);
+						}
+						callbackContext.success(res);
+						return true;
+					} else {
+						String rootPath = getRootPath(ctx,root);				
+						File dir;
+						if ("".equals(dirName) || ".".equals(dirName)) {
+							dir = new File(rootPath);					
+						} else {
+							dir = new File(rootPath + "/" + dirName);
+						}
+
+						if (!dir.exists()) {
+							Log.d(TAG, "The folder does not exist:" + dirName);
+							callbackContext.error("The file does not exist");
+							return false;	
+						}
+						
+						if (!dir.isDirectory()) {
+							Log.d(TAG, dirName + " is not a directory");
+							callbackContext.error(dirName + " is not a directory");
+							return false;
+						}
+						
+						JSONArray res = new JSONArray();
+						
+						File []childs =dir.listFiles();
+						int i;
+						for (i=0; i<childs.length; i++) {
+							JSONObject fileObject = new JSONObject();
+							fileObject.put("name", childs[i].getName());
+							fileObject.put("isFolder", childs[i].isDirectory());
+							res.put(fileObject);
+						}
+						callbackContext.success(res);
+						return true;
+					}
+				}
+				catch(Exception e) {
+					callbackContext.error(e.getMessage());
+				}
 			}
-			
-			if (!dir.isDirectory()) {
-				Log.d(TAG, dirName + " is not a directory");
-				callbackContext.error(dirName + " is not a directory");
-				return false;						
-			}
-			
-			JSONArray res = new JSONArray();
-			
-			File []childs =dir.listFiles();
-			int i;
-			for (i=0; i<childs.length; i++) {
-				JSONObject fileObject = new JSONObject();
-				fileObject.put("name", childs[i].getName());
-				fileObject.put("isFolder", childs[i].isDirectory());
-				res.put(fileObject);
-			}
-			callbackContext.success(res);
-			return true;
-		}
+		});
 	}
 
 	@Override
