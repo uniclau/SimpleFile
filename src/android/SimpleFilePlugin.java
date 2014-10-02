@@ -152,7 +152,7 @@ Log.d(TAG, "writeFile >");
 				}
 				catch(Exception e) {
 					callbackContext.error(e.getMessage());
-Log.d(TAG, "writeFile xxx" + e.getMessage(););
+Log.d(TAG, "writeFile xxx" + e.getMessage();
 				}
 			}
 		});
