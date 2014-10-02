@@ -67,7 +67,7 @@ public class SimpleFilePlugin extends CordovaPlugin {
 		}
 	}
 
-	private boolean readFile(final Context ctx, JSONArray args, final CallbackContext callbackContext) {
+	private boolean readFile(final Context ctx, JSONArray args, final CallbackContext callbackContext) throws Exception {
 		String root = args.getString(0);
 		String fileName = args.getString(1);
 		byte[] buff;
@@ -102,7 +102,7 @@ public class SimpleFilePlugin extends CordovaPlugin {
 		return true;
 	}
 
-	private boolean writeFile(final Context ctx, JSONArray args, final CallbackContext callbackContext) {
+	private boolean writeFile(final Context ctx, JSONArray args, final CallbackContext callbackContext) throws Exception {
 		final String root = args.getString(0);
 		if ("bundle".equals(root)) {
 			callbackContext.error("The bundle is read only");
@@ -136,7 +136,7 @@ public class SimpleFilePlugin extends CordovaPlugin {
 		return true; 	
 	}
 
-	private boolean remove(final Context ctx, JSONArray args, final CallbackContext callbackContext) {
+	private boolean remove(final Context ctx, JSONArray args, final CallbackContext callbackContext) throws Exception {
 		String root = args.getString(0);
 		if ("bundle".equals(root)) {
 			callbackContext.error("Bundle is readonly");
@@ -155,7 +155,7 @@ public class SimpleFilePlugin extends CordovaPlugin {
 		return true;
 	}
 
-	private boolean download(final Context ctx, JSONArray args, final CallbackContext callbackContext) {
+	private boolean download(final Context ctx, JSONArray args, final CallbackContext callbackContext) throws Exception {
 		String root = args.getString(0);
 		if ("bundle".equals(root)) {
 			callbackContext.error("Bundle is readonly");
@@ -202,7 +202,7 @@ public class SimpleFilePlugin extends CordovaPlugin {
 		return true; 	
 	}
 
-	private boolean getUrl(final Context ctx, JSONArray args, final CallbackContext callbackContext) {
+	private boolean getUrl(final Context ctx, JSONArray args, final CallbackContext callbackContext) throws Exception {
 		String root = args.getString(0);
 		String fileName = args.getString(1);
 		String res;
@@ -216,7 +216,7 @@ public class SimpleFilePlugin extends CordovaPlugin {
 		return true;
 	}
 
-	private boolean createFolder(final Context ctx, JSONArray args, final CallbackContext callbackContext) {
+	private boolean createFolder(final Context ctx, JSONArray args, final CallbackContext callbackContext) throws Exception {
 		String root = args.getString(0);
 		if ("bundle".equals(root)) {
 			callbackContext.error("Bundle is readonly");
@@ -230,7 +230,7 @@ public class SimpleFilePlugin extends CordovaPlugin {
 		return true;
 	}
 
-	private boolean list(final Context ctx, JSONArray args, final CallbackContext callbackContext) {
+	private boolean list(final Context ctx, JSONArray args, final CallbackContext callbackContext) throws Exception {
 		String root = args.getString(0);
 		String dirName = args.getString(1);
 		if ("bundle".equals(root)) {
