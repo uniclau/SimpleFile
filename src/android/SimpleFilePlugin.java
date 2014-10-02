@@ -67,14 +67,15 @@ public class SimpleFilePlugin extends CordovaPlugin {
 		}
 	}
 
-	private boolean readFile(final Context ctx, JSONArray args, final CallbackContext callbackContext) throws Exception {
-		final String root = args.getString(0);
-		final String fileName = args.getString(1);
+	private boolean readFile(final Context ctx, JSONArray params, final CallbackContext callbackContext) throws Exception {
+		final JSONArray args = params;
 
 		cordova.getThreadPool().execute(new Runnable() {
 			public void run() {
 				try {
 					byte[] buff;
+					String root = args.getString(0);
+					String fileName = args.getString(1);
 					if ("bundle".equals(root)) {
 						AssetManager assets = ctx.getAssets();
 						InputStream is = assets.open(fileName);
@@ -106,25 +107,28 @@ public class SimpleFilePlugin extends CordovaPlugin {
 				}
 				catch(Exception e) {
 					callbackContext.error(e.getMessage());
+					return;
 				}
 			}
 		});
 		return true; 	
 	}
 
-	private boolean writeFile(final Context ctx, JSONArray args, final CallbackContext callbackContext) throws Exception {
+	private boolean writeFile(final Context ctx, JSONArray params, final CallbackContext callbackContext) throws Exception {
+		final JSONArray args = params;
+
 		final String root = args.getString(0);
 		if ("bundle".equals(root)) {
 			callbackContext.error("The bundle file system is read only");
 			return false;
 		}
-		final String rootPath = getRootPath(ctx, root);
-		final String fileName = args.getString(1);
-		final String data64 = args.getString(2);
 		
 		cordova.getThreadPool().execute(new Runnable() {
 			public void run() {
 				try {
+					String fileName = args.getString(1);
+					String data64 = args.getString(2);
+					String rootPath = getRootPath(ctx, root);
 					byte [] data = Base64.decode(data64, Base64.DEFAULT);
 
 					File f= new File(rootPath + "/" + fileName);
@@ -170,28 +174,34 @@ public class SimpleFilePlugin extends CordovaPlugin {
 		return true;
 	}
 
-	private boolean download(final Context ctx, JSONArray args, final CallbackContext callbackContext) throws Exception {
-		String root = args.getString(0);
+	private boolean download(final Context ctx, JSONArray params, final CallbackContext callbackContext) throws Exception {
+		
+		final JSONArray args = params;
+		final String root = args.getString(0);
 		if ("bundle".equals(root)) {
 			callbackContext.error("The bundle file system is read only");
 			return false;
 		}
-
-		final String rootPath = getRootPath(ctx,root);
-		final String url = args.getString(1);
-		final String fileName = args.getString(2);
 		
 		cordova.getThreadPool().execute(new Runnable() {
 			public void run() {
+				String url;
+				try {
+					url = args.getString(1);
+				}
+				catch(Exception e) { return ;}
 		
 				URLNetRequester.NewRequest("", url, url, new URLNetRequester.AnswerHandler() {			
 					@Override
 					public void OnAnswer(Object CallbackParam, byte[] Res) {
+
 						if (Res == null) {
 							callbackContext.error("Network Error");
 							return;
 						}
 						try {
+							String rootPath = getRootPath(ctx, root);
+							String fileName = args.getString(2);
 							File f= new File(rootPath + "/" + fileName);
 							if (f.exists()) {
 								f.delete();
@@ -245,13 +255,14 @@ public class SimpleFilePlugin extends CordovaPlugin {
 		return true;
 	}
 
-	private boolean list(final Context ctx, JSONArray args, final CallbackContext callbackContext) throws Exception {
-		final String root = args.getString(0);
-		final String dirNameParam = args.getString(1);
+	private boolean list(final Context ctx, JSONArray params, final CallbackContext callbackContext) throws Exception {
+		final JSONArray args = params;
 
 		cordova.getThreadPool().execute(new Runnable() {
 			public void run() {
 				try {
+					String root = args.getString(0);
+					String dirNameParam = args.getString(1);
 					String dirName = dirNameParam;
 					if ("bundle".equals(root)) {
 						if (".".equals(dirName)) dirName = "";
@@ -260,7 +271,7 @@ public class SimpleFilePlugin extends CordovaPlugin {
 							try {
 								// This function will raise an exception if it is a directory.
 								ctx.getAssets().open(dirName);
-								Log.d(TAG, dirName + " it's not a directory");
+								// Log.d(TAG, dirName + " is not a directory");
 								callbackContext.error(dirName + " is not a directory");
 								return;
 							} catch (Exception e) {}
@@ -283,6 +294,7 @@ public class SimpleFilePlugin extends CordovaPlugin {
 							res.put(fileObject);
 						}
 						callbackContext.success(res);
+						return;
 					} else {
 						String rootPath = getRootPath(ctx,root);				
 						File dir;
