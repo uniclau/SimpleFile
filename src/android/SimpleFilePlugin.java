@@ -163,7 +163,7 @@ public class SimpleFilePlugin extends CordovaPlugin {
 		}
 
 		final String rootPath = getRootPath(ctx,root);
-		String url = args.getString(1);
+		final String url = args.getString(1);
 		final String fileName = args.getString(2);
 		
 		cordova.getThreadPool().execute(new Runnable() {
