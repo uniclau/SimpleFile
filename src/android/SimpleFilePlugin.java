@@ -69,10 +69,12 @@ public class SimpleFilePlugin extends CordovaPlugin {
 
 	private boolean readFile(final Context ctx, JSONArray params, final CallbackContext callbackContext) throws Exception {
 		final JSONArray args = params;
+Log.d(TAG, "readFile IN");
 
 		cordova.getThreadPool().execute(new Runnable() {
 			public void run() {
 				try {
+Log.d(TAG, "readFile RUN");
 					byte[] buff;
 					String root = args.getString(0);
 					String fileName = args.getString(1);
@@ -116,7 +118,7 @@ public class SimpleFilePlugin extends CordovaPlugin {
 
 	private boolean writeFile(final Context ctx, JSONArray params, final CallbackContext callbackContext) throws Exception {
 		final JSONArray args = params;
-
+Log.d(TAG, "writeFile IN");
 		final String root = args.getString(0);
 		if ("bundle".equals(root)) {
 			callbackContext.error("The bundle file system is read only");
@@ -126,6 +128,7 @@ public class SimpleFilePlugin extends CordovaPlugin {
 		cordova.getThreadPool().execute(new Runnable() {
 			public void run() {
 				try {
+Log.d(TAG, "writeFile RUN");
 					String fileName = args.getString(1);
 					String data64 = args.getString(2);
 					String rootPath = getRootPath(ctx, root);
@@ -149,6 +152,7 @@ public class SimpleFilePlugin extends CordovaPlugin {
 				}
 				catch(Exception e) {
 					callbackContext.error(e.getMessage());
+Log.d(TAG, "writeFile Exception");
 				}
 			}
 		});
@@ -256,11 +260,14 @@ public class SimpleFilePlugin extends CordovaPlugin {
 	}
 
 	private boolean list(final Context ctx, JSONArray params, final CallbackContext callbackContext) throws Exception {
+Log.d(TAG, "list IN");
+
 		final JSONArray args = params;
 
 		cordova.getThreadPool().execute(new Runnable() {
 			public void run() {
 				try {
+Log.d(TAG, "list RUN");
 					String root = args.getString(0);
 					String dirNameParam = args.getString(1);
 					String dirName = dirNameParam;
@@ -273,6 +280,7 @@ public class SimpleFilePlugin extends CordovaPlugin {
 								ctx.getAssets().open(dirName);
 								// Log.d(TAG, dirName + " is not a directory");
 								callbackContext.error(dirName + " is not a directory");
+Log.d(TAG, "list Err 1");
 								return;
 							} catch (Exception e) {}
 						}
@@ -294,6 +302,7 @@ public class SimpleFilePlugin extends CordovaPlugin {
 							res.put(fileObject);
 						}
 						callbackContext.success(res);
+Log.d(TAG, "list Done");
 						return;
 					} else {
 						String rootPath = getRootPath(ctx,root);				
@@ -307,12 +316,14 @@ public class SimpleFilePlugin extends CordovaPlugin {
 						if (!dir.exists()) {
 							Log.d(TAG, "The folder does not exist: " + dirName);
 							callbackContext.error("The file does not exist");
+Log.d(TAG, "list Err 2");
 							return;
 						}
 						
 						if (!dir.isDirectory()) {
 							Log.d(TAG, dirName + " is not a directory");
 							callbackContext.error(dirName + " is not a directory");
+Log.d(TAG, "list Err 3");
 							return;
 						}
 						
@@ -327,10 +338,12 @@ public class SimpleFilePlugin extends CordovaPlugin {
 							res.put(fileObject);
 						}
 						callbackContext.success(res);
+Log.d(TAG, "list Done 2");
 					}
 				}
 				catch(Exception e) {
 					callbackContext.error(e.getMessage());
+Log.d(TAG, "list Err 4");
 				}
 			}
 		});
@@ -362,9 +375,11 @@ public class SimpleFilePlugin extends CordovaPlugin {
 			else if ("list".equals(action)) {
 				return list(ctx, args, callbackContext);
 			}
+Log.d(TAG, "WTF? " + action);
 			return false;		
 		} catch(Exception e) {
 			System.err.println("Exception: " + e.getMessage());
+Log.d(TAG, "Main Exception: " + e.getMessage());
 			callbackContext.error(e.getMessage());
 			return false;
 		} 

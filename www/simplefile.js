@@ -78,11 +78,15 @@ var simpleFile = {
     cache: new FileSystem("cache"),
     tmp: new FileSystem("tmp"),
     "copy": function (fromFS, fromItem, toFS, toItem, cb, errcb) {
+console.log("Copy: " + fromItem + " to " + toItem);
         window.plugins.simpleFile[fromFS].list(fromItem, function(list) {
+console.log("List: " + JSON.stringify(list));
             window.plugins.simpleFile[toFS].createFolder(toItem, function() {
+console.log("createFolder: " + toItem);
                 async.eachSeries(list, function(f, cb2) {
                     var newFrom = fromItem + "/" + f.name;
                     var newTo = toItem + "/" + f.name;
+console.log("Copy: " + newFrom + " to " + newTo);
                     simpleFile.copy(fromFS, newFrom, toFS, newTo, function() {
                         setTimeout(function() {cb2();}, 50);
                     }, function(err) {
@@ -96,7 +100,8 @@ var simpleFile = {
                     }
                 });
             }, errcb);
-        },function(err) {
+        }, function(err) {
+console.log("ERROR LIST: " + err);
             // Might be a file
             window.plugins.simpleFile[fromFS].read(fromItem, function(data) {
                 window.plugins.simpleFile[toFS].write(toItem, data, cb, errcb);
