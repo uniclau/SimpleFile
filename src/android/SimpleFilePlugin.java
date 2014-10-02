@@ -93,7 +93,7 @@ public class SimpleFilePlugin extends CordovaPlugin {
 						if (!f.exists()) {
 							Log.d(TAG, "The file does not exist:" + fileName);
 							callbackContext.error("The file does not exist");
-							return false;
+							return;
 						}
 						FileInputStream is = new FileInputStream(rootPath + "/" +fileName);
 						buff = new byte[(int)f.length()];
@@ -259,10 +259,10 @@ public class SimpleFilePlugin extends CordovaPlugin {
 						if (files.length == 0) {
 							try {
 								// This function will raise an exception if it is a directory.
-								ctx.getAssets().open( dirName);
+								ctx.getAssets().open(dirName);
 								Log.d(TAG, dirName + " it's not a directory");
 								callbackContext.error(dirName + " is not a directory");
-								return false;		
+								return;
 							} catch (Exception e) {}
 						}
 						
@@ -283,7 +283,6 @@ public class SimpleFilePlugin extends CordovaPlugin {
 							res.put(fileObject);
 						}
 						callbackContext.success(res);
-						return true;
 					} else {
 						String rootPath = getRootPath(ctx,root);				
 						File dir;
@@ -296,13 +295,13 @@ public class SimpleFilePlugin extends CordovaPlugin {
 						if (!dir.exists()) {
 							Log.d(TAG, "The folder does not exist:" + dirName);
 							callbackContext.error("The file does not exist");
-							return false;	
+							return;
 						}
 						
 						if (!dir.isDirectory()) {
 							Log.d(TAG, dirName + " is not a directory");
 							callbackContext.error(dirName + " is not a directory");
-							return false;
+							return;
 						}
 						
 						JSONArray res = new JSONArray();
@@ -316,7 +315,6 @@ public class SimpleFilePlugin extends CordovaPlugin {
 							res.put(fileObject);
 						}
 						callbackContext.success(res);
-						return true;
 					}
 				}
 				catch(Exception e) {
@@ -324,6 +322,7 @@ public class SimpleFilePlugin extends CordovaPlugin {
 				}
 			}
 		});
+		return true;
 	}
 
 	@Override
