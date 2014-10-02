@@ -91,7 +91,7 @@ public class SimpleFilePlugin extends CordovaPlugin {
 
 						File f = new File(rootPath + "/" + fileName);
 						if (!f.exists()) {
-							Log.d(TAG, "The file does not exist:" + fileName);
+							Log.d(TAG, "The file does not exist: " + fileName);
 							callbackContext.error("The file does not exist");
 							return;
 						}
@@ -115,7 +115,7 @@ public class SimpleFilePlugin extends CordovaPlugin {
 	private boolean writeFile(final Context ctx, JSONArray args, final CallbackContext callbackContext) throws Exception {
 		final String root = args.getString(0);
 		if ("bundle".equals(root)) {
-			callbackContext.error("The bundle is read only");
+			callbackContext.error("The bundle file system is read only");
 			return false;
 		}
 		final String rootPath = getRootPath(ctx, root);
@@ -154,7 +154,7 @@ public class SimpleFilePlugin extends CordovaPlugin {
 	private boolean remove(final Context ctx, JSONArray args, final CallbackContext callbackContext) throws Exception {
 		String root = args.getString(0);
 		if ("bundle".equals(root)) {
-			callbackContext.error("Bundle is readonly");
+			callbackContext.error("The bundle file system is read only");
 			return false;
 		}
 		String rootPath = getRootPath(ctx, root);
@@ -173,7 +173,7 @@ public class SimpleFilePlugin extends CordovaPlugin {
 	private boolean download(final Context ctx, JSONArray args, final CallbackContext callbackContext) throws Exception {
 		String root = args.getString(0);
 		if ("bundle".equals(root)) {
-			callbackContext.error("Bundle is readonly");
+			callbackContext.error("The bundle file system is read only");
 			return false;
 		}
 
@@ -234,7 +234,7 @@ public class SimpleFilePlugin extends CordovaPlugin {
 	private boolean createFolder(final Context ctx, JSONArray args, final CallbackContext callbackContext) throws Exception {
 		String root = args.getString(0);
 		if ("bundle".equals(root)) {
-			callbackContext.error("Bundle is readonly");
+			callbackContext.error("The bundle file system is read only");
 			return false;
 		}
 		String rootPath = getRootPath(ctx,root);				
@@ -293,7 +293,7 @@ public class SimpleFilePlugin extends CordovaPlugin {
 						}
 
 						if (!dir.exists()) {
-							Log.d(TAG, "The folder does not exist:" + dirName);
+							Log.d(TAG, "The folder does not exist: " + dirName);
 							callbackContext.error("The file does not exist");
 							return;
 						}
