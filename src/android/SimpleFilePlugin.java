@@ -134,7 +134,7 @@ public class SimpleFilePlugin extends CordovaPlugin {
 					callbackContext.success();
 				}
 				catch(Exception e) {
-					callbackContext.error(e.getMessage(););
+					callbackContext.error(e.getMessage());
 				}
 			}
 		});
