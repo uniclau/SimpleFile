@@ -103,31 +103,36 @@ public class SimpleFilePlugin extends CordovaPlugin {
 	}
 
 	private boolean writeFile(final Context ctx, JSONArray args, final CallbackContext callbackContext) {
-		String root = args.getString(0);
+		final String root = args.getString(0);
 		if ("bundle".equals(root)) {
 			callbackContext.error("The bundle is read only");
 			return false;
 		}
-		String rootPath = getRootPath(ctx, root);
-		String fileName = args.getString(1);
-		String data64 = args.getString(2);
-		byte [] data = Base64.decode(data64, Base64.DEFAULT);
-
-		File f= new File(rootPath + "/" +fileName);
-		if (f.exists()) {
-			f.delete();
-		}
+		final String rootPath = getRootPath(ctx, root);
+		final String fileName = args.getString(1);
+		final String data64 = args.getString(2);
 		
-		File dir = f.getParentFile();
-		dir.mkdirs();
+		cordova.getThreadPool().execute(new Runnable() {
+			public void run() {
+				byte [] data = Base64.decode(data64, Base64.DEFAULT);
 
-		FileOutputStream fstream;
-		fstream = new FileOutputStream(rootPath + "/" +fileName);
-		fstream.write(data);
-		fstream.flush();
-		fstream.close();
+				File f= new File(rootPath + "/" + fileName);
+				if (f.exists()) {
+					f.delete();
+				}
 
-		callbackContext.success();
+				File dir = f.getParentFile();
+				dir.mkdirs();
+
+				FileOutputStream fstream;
+				fstream = new FileOutputStream(rootPath + "/" + fileName);
+				fstream.write(data);
+				fstream.flush();
+				fstream.close();
+
+				callbackContext.success();
+			}
+		});
 		return true; 	
 	}
 
@@ -161,36 +166,37 @@ public class SimpleFilePlugin extends CordovaPlugin {
 		String url = args.getString(1);
 		final String fileName = args.getString(2);
 		
-		final CallbackContext cb = callbackContext;
+		cordova.getThreadPool().execute(new Runnable() {
+			public void run() {
 		
-		URLNetRequester.NewRequest("", url, url, new URLNetRequester.AnswerHandler() {
-			
-			@Override
-			public void OnAnswer(Object CallbackParam, byte[] Res) {
-				if (Res == null) {
-					cb.error("Network Error");
-					return;
-				}
-				
-				try {
-					File f= new File(rootPath + "/" +fileName);
-					if (f.exists()) {
-						f.delete();
+				URLNetRequester.NewRequest("", url, url, new URLNetRequester.AnswerHandler() {			
+					@Override
+					public void OnAnswer(Object CallbackParam, byte[] Res) {
+						if (Res == null) {
+							callbackContext.error("Network Error");
+							return;
+						}
+						try {
+							File f= new File(rootPath + "/" + fileName);
+							if (f.exists()) {
+								f.delete();
+							}
+
+							File dir = f.getParentFile();
+							dir.mkdirs();							
+							
+							FileOutputStream fstream;
+							fstream = new FileOutputStream(rootPath + "/" +fileName);
+							fstream.write(Res);
+							fstream.flush();
+							fstream.close();
+
+							callbackContext.success();
+						} catch(Exception e) {
+							callbackContext.error(e.getMessage());
+						}
 					}
-
-					File dir = f.getParentFile();
-					dir.mkdirs();							
-					
-					FileOutputStream fstream;
-					fstream = new FileOutputStream(rootPath + "/" +fileName);
-					fstream.write(Res);
-					fstream.flush();
-					fstream.close();
-
-					cb.success();
-				} catch(Exception e) {
-					cb.error(e.getMessage());
-				}
+				});
 			}
 		});
 		return true; 	
