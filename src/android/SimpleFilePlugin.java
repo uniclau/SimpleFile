@@ -114,23 +114,28 @@ public class SimpleFilePlugin extends CordovaPlugin {
 		
 		cordova.getThreadPool().execute(new Runnable() {
 			public void run() {
-				byte [] data = Base64.decode(data64, Base64.DEFAULT);
+				try {
+					byte [] data = Base64.decode(data64, Base64.DEFAULT);
 
-				File f= new File(rootPath + "/" + fileName);
-				if (f.exists()) {
-					f.delete();
+					File f= new File(rootPath + "/" + fileName);
+					if (f.exists()) {
+						f.delete();
+					}
+
+					File dir = f.getParentFile();
+					dir.mkdirs();
+
+					FileOutputStream fstream;
+					fstream = new FileOutputStream(rootPath + "/" + fileName);
+					fstream.write(data);
+					fstream.flush();
+					fstream.close();
+
+					callbackContext.success();
 				}
-
-				File dir = f.getParentFile();
-				dir.mkdirs();
-
-				FileOutputStream fstream;
-				fstream = new FileOutputStream(rootPath + "/" + fileName);
-				fstream.write(data);
-				fstream.flush();
-				fstream.close();
-
-				callbackContext.success();
+				catch(Exception e) {
+					callbackContext.error(e.getMessage(););
+				}
 			}
 		});
 		return true; 	
