@@ -1,6 +1,5 @@
 package com.uniclau.simplefile;
 
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -17,293 +16,584 @@ import com.uniclau.network.URLNetRequester;
 
 import android.content.Context;
 import android.content.res.AssetManager;
+import android.os.AsyncTask;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.util.Base64;
 
 import android.util.Log;
 
-
 public class SimpleFilePlugin extends CordovaPlugin {
 
-       private final String TAG="SimpleFilePlugin";
+	private static final int TASK_COMPLETE_OK = 1;
+	private static final int TASK_COMPLETE_ERR = 2;
+	private class TaskResult {
+		public CallbackContext callbackContext;
+		public JSONObject jobj=null;
+		public JSONArray jarr=null;
+		public String str=null;
+	};
 	
-	   @Override
-	    public void onPause(boolean multitasking) {
-	        Log.d(TAG, "onPause");
-	        //URLNetRequester.CancelAll();
-	        super.onPause(multitasking);
-	    }
+	private final String TAG="SimpleFilePlugin";
+	
+	@Override
+	public void onPause(boolean multitasking) {
+		Log.d(TAG, "onPause");
+	    //URLNetRequester.CancelAll();
+		super.onPause(multitasking);
+	}
 
-	    @Override
-	    public void onResume(boolean multitasking) {
-	        Log.d(TAG, "onResume " );
-	        super.onResume(multitasking);
-	    }
-	    
-		private void DeleteRecursive(File fileOrDirectory) {
-		    if (fileOrDirectory.isDirectory())
-		        for (File child : fileOrDirectory.listFiles())
-		            DeleteRecursive(child);
+	@Override
+	public void onResume(boolean multitasking) {
+		Log.d(TAG, "onResume " );
+		super.onResume(multitasking);
+	}
 
-		    fileOrDirectory.delete();
-		}
-
-		private String getRootPath(Context ctx, String type) {
-			if ("external".equals(type)) {
-				if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-					return Environment.getExternalStorageDirectory().getAbsolutePath();
-	            } else {
-	            	String packageName = ctx.getPackageName();
-	            	return "/data/data/" + packageName;
-	            }
-			} else if ("internal".equals(type)) {
-				return ctx.getFilesDir().getAbsolutePath();				
-			} else if ("cache".equals(type)) {
-				return ctx.getCacheDir().getAbsolutePath();				
-			} else if ("tmp".equals(type)) {
-				return ctx.getCacheDir().getAbsolutePath();				
-			} else {
-				return "";
+	private void DeleteRecursive(File fileOrDirectory) {
+		if (fileOrDirectory.isDirectory()) {
+			for (File child : fileOrDirectory.listFiles()) {
+				DeleteRecursive(child);
 			}
 		}
-	    
+
+		fileOrDirectory.delete();
+	}
+
+	private String getRootPath(Context ctx, String type) {
+		if ("external".equals(type)) {
+			if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
+				return Environment.getExternalStorageDirectory().getAbsolutePath();
+			} else {
+				String packageName = ctx.getPackageName();
+				return "/data/data/" + packageName;
+			}
+		} else if ("internal".equals(type)) {
+			return ctx.getFilesDir().getAbsolutePath();				
+		} else if ("cache".equals(type)) {
+			return ctx.getCacheDir().getAbsolutePath();				
+		} else if ("tmp".equals(type)) {
+			return ctx.getCacheDir().getAbsolutePath();				
+		} else {
+			return "";
+		}
+	}
+
+	private boolean readFile(final Context ctx, JSONArray params, final CallbackContext callbackContext) throws Exception {
+		final JSONArray args = params;
+		final TaskResult tr = new TaskResult();
+		tr.callbackContext = callbackContext;
+
+Log.d(TAG, "> readFile");
+
+		cordova.getThreadPool().execute(new Runnable() {
+			public void run() {
+				try {
+Log.d(TAG, "readFile >");
+					byte[] buff;
+					String root = args.getString(0);
+					String fileName = args.getString(1);
+					if ("bundle".equals(root)) {
+						AssetManager assets = ctx.getAssets();
+						InputStream is = assets.open(fileName);
+						ByteArrayOutputStream outstream = new ByteArrayOutputStream();
+						int bytesRead;
+						byte[] buf = new byte[4 * 1024]; // 4K buffer
+						while ((bytesRead = is.read(buf)) != -1) {
+							outstream.write(buf, 0, bytesRead);
+						}
+						buff = outstream.toByteArray();
+					}
+					else {
+						String rootPath = getRootPath(ctx, root);
+
+						File f = new File(rootPath + "/" + fileName);
+						if (!f.exists()) {
+							Log.d(TAG, "The file does not exist: " + fileName);
+							
+							tr.str = "The file does not exist";
+							Message completeMessage =
+				                        mHandler.obtainMessage(TASK_COMPLETE_ERR, tr);
+				            completeMessage.sendToTarget();
+
+//							callbackContext.error("The file does not exist");
+							return;
+						}
+						FileInputStream is = new FileInputStream(rootPath + "/" +fileName);
+						buff = new byte[(int)f.length()];
+						is.read(buff);
+						is.close();
+					}
+					String data64 = Base64.encodeToString(buff,  Base64.DEFAULT | Base64.NO_WRAP);
+					
+					
+					tr.str = data64;
+					Message completeMessage =
+		                        mHandler.obtainMessage(TASK_COMPLETE_OK, tr);
+		            completeMessage.sendToTarget();
+		            
+//					callbackContext.success(data64);
+				}
+				catch(Exception e) {
+					tr.str = e.getMessage();
+					Message completeMessage =
+		                        mHandler.obtainMessage(TASK_COMPLETE_ERR, tr);
+		            completeMessage.sendToTarget();
+//					callbackContext.error(e.getMessage());
+					return;
+				}
+			}
+		});
+		return true; 	
+	}
+
+	private boolean writeFile(final Context ctx, JSONArray params, final CallbackContext callbackContext) throws Exception {
+		final JSONArray args = params;
+Log.d(TAG, "> writeFile");
+		final TaskResult tr = new TaskResult();
+		tr.callbackContext = callbackContext;
+
+		final String root = args.getString(0);
+		if ("bundle".equals(root)) {
+			callbackContext.error("The bundle file system is read only");
+			return false;
+		}
+		
+		cordova.getThreadPool().execute(new Runnable() {
+			public void run() {
+				try {
+Log.d(TAG, "writeFile >");
+					String fileName = args.getString(1);
+					String data64 = args.getString(2);
+					String rootPath = getRootPath(ctx, root);
+					byte [] data = Base64.decode(data64, Base64.DEFAULT);
+
+					File f= new File(rootPath + "/" + fileName);
+					if (f.exists()) {
+						f.delete();
+					}
+
+					File dir = f.getParentFile();
+					dir.mkdirs();
+
+					FileOutputStream fstream;
+					fstream = new FileOutputStream(rootPath + "/" + fileName);
+					fstream.write(data);
+					fstream.flush();
+					fstream.close();
+
+					Message completeMessage =
+		                        mHandler.obtainMessage(TASK_COMPLETE_OK, tr);
+		            completeMessage.sendToTarget();
+		            
+//					callbackContext.success();
+				}
+				catch(Exception e) {
+					tr.str = e.getMessage();
+					Message completeMessage =
+		                        mHandler.obtainMessage(TASK_COMPLETE_ERR, tr);
+		            completeMessage.sendToTarget();
+//					callbackContext.error(e.getMessage());
+Log.d(TAG, "writeFile xxx" + e.getMessage());
+				}
+			}
+		});
+		return true; 	
+	}
+
+	private boolean remove(final Context ctx, JSONArray args, final CallbackContext callbackContext) throws Exception {
+		String root = args.getString(0);
+		if ("bundle".equals(root)) {
+			callbackContext.error("The bundle file system is read only");
+			return false;
+		}
+		String rootPath = getRootPath(ctx, root);
+		String fileName = args.getString(1);
+		File f= new File(rootPath + "/" + fileName);
+		if (f.exists()) {
+			if (f.isDirectory())
+				DeleteRecursive(f);
+			else
+				f.delete();
+		}
+		callbackContext.success();
+		return true;
+	}
+
+	private boolean download(final Context ctx, JSONArray params, final CallbackContext callbackContext) throws Exception {
+		
+		final JSONArray args = params;
+		final String root = args.getString(0);
+
+		if ("bundle".equals(root)) {
+			callbackContext.error("The bundle file system is read only");
+			return false;
+		}
+		
+		String url;
+		try {
+			url = args.getString(1);
+		}
+		catch(Exception e) { return false;}
+
+		URLNetRequester.NewRequest("", url, url, new URLNetRequester.AnswerHandler() {			
+			@Override
+			public void OnAnswer(Object CallbackParam, byte[] Res) {
+
+				if (Res == null) {
+					
+
+					callbackContext.error("Network Error");
+					return;
+				}
+				try {
+					String rootPath = getRootPath(ctx, root);
+					String fileName = args.getString(2);
+					File f= new File(rootPath + "/" + fileName);
+					if (f.exists()) {
+						f.delete();
+					}
+
+					File dir = f.getParentFile();
+					dir.mkdirs();							
+					
+					FileOutputStream fstream;
+					fstream = new FileOutputStream(rootPath + "/" +fileName);
+					fstream.write(Res);
+					fstream.flush();
+					fstream.close();
+        
+					callbackContext.success();
+				} catch(Exception e) {
+					callbackContext.error(e.getMessage());
+				}
+			}
+		});
+		return true; 	
+	}
+
+	private boolean getUrl(final Context ctx, JSONArray args, final CallbackContext callbackContext) throws Exception {
+		String root = args.getString(0);
+		String fileName = args.getString(1);
+		String res;
+		if ("bundle".equals(root)) {
+			res = "file:///android_asset/" + fileName;
+		} else {
+			String rootPath = getRootPath(ctx,root);				
+			res = "file://" + rootPath + "/" + fileName;
+		}
+		callbackContext.success(res);
+		return true;
+	}
+
+	private boolean createFolder(final Context ctx, JSONArray args, final CallbackContext callbackContext) throws Exception {
+		String root = args.getString(0);
+		if ("bundle".equals(root)) {
+			callbackContext.error("The bundle file system is read only");
+			return false;
+		}
+		String rootPath = getRootPath(ctx,root);				
+		String dirName = args.getString(1);
+		File dir = new File(rootPath + "/" + dirName);
+		dir.mkdirs();
+		callbackContext.success();
+		return true;
+	}
+
+	
+
+	private boolean list(final Context ctx, JSONArray params, final CallbackContext callbackContext) throws Exception {
+Log.d(TAG, "> list");
+
+		final JSONArray args = params;
+		final TaskResult tr = new TaskResult();
+		tr.callbackContext = callbackContext;
+
+		cordova.getThreadPool().execute(new Runnable() {
+			public void run() {
+				try {
+Log.d(TAG, "list >");
+					String root = args.getString(0);
+					String dirName = args.getString(1);
+					if ("bundle".equals(root)) {
+						if (".".equals(dirName)) dirName = "";
+						String [] files = ctx.getAssets().list(dirName);
+						if (files.length == 0) {
+							try {
+								// This function will raise an exception if it is a directory.
+								ctx.getAssets().open(dirName);
+								// Log.d(TAG, dirName + " is not a directory");
+								
+								tr.str = dirName + " is not a directory";
+								Message completeMessage =
+					                        mHandler.obtainMessage(TASK_COMPLETE_ERR, tr);
+					            completeMessage.sendToTarget();
+
+					            
+//								callbackContext.error(dirName + " is not a directory");
+Log.d(TAG, "List error: Not a directory: " + dirName);
+								return;
+							} catch (Exception e) {}
+						}
+						
+						JSONArray res = new JSONArray();
+						int i;
+						for (i=0; i<files.length; i++) {
+							JSONObject fileObject = new JSONObject();
+							fileObject.put("name", files[i]);
+							fileObject.put("isFolder", true);
+							try {
+								String [] subFolders = ctx.getAssets().list("".equals(dirName) ? files[i] : dirName + "/" +files[i]);
+								if (subFolders.length == 0) {
+									fileObject.put("isFolder", false);							
+								}
+							} catch(Exception e) {
+								fileObject.put("isFolder", false);							
+							}
+							res.put(fileObject);
+						}
+						
+						tr.jarr = res;
+						Message completeMessage =
+			                        mHandler.obtainMessage(TASK_COMPLETE_OK, tr);
+			            completeMessage.sendToTarget();
+			            
+			            
+//						callbackContext.success(res);
+Log.d(TAG, "list OK");
+						return;
+					} else {
+						String rootPath = getRootPath(ctx,root);				
+						File dir;
+						if ("".equals(dirName) || ".".equals(dirName)) {
+							dir = new File(rootPath);					
+						} else {
+							dir = new File(rootPath + "/" + dirName);
+						}
+
+						if (!dir.exists()) {
+							Log.d(TAG, "The folder does not exist: " + dirName);
+
+							tr.str = "The file does not exist";
+							Message completeMessage =
+				                        mHandler.obtainMessage(TASK_COMPLETE_ERR, tr);
+				            completeMessage.sendToTarget();
+
+							
+//							callbackContext.error("The file does not exist");
+Log.d(TAG, "list xxx 2");
+							return;
+						}
+						
+						if (!dir.isDirectory()) {
+							Log.d(TAG, dirName + " is not a directory");
+
+						tr.str = dirName + " is not a directory";
+						Message completeMessage =
+			                        mHandler.obtainMessage(TASK_COMPLETE_ERR, tr);
+			            completeMessage.sendToTarget();
+							
+//							callbackContext.error(dirName + " is not a directory");
+Log.d(TAG, "list xxx 3");
+							return;
+						}
+						
+						JSONArray res = new JSONArray();
+						
+						File []childs =dir.listFiles();
+						int i;
+						for (i=0; i<childs.length; i++) {
+							JSONObject fileObject = new JSONObject();
+							fileObject.put("name", childs[i].getName());
+							fileObject.put("isFolder", childs[i].isDirectory());
+							res.put(fileObject);
+						}
+						
+						tr.jarr = res;
+						Message completeMessage =
+			                        mHandler.obtainMessage(TASK_COMPLETE_OK, tr);
+			            completeMessage.sendToTarget();
+						
+//						callbackContext.success(res);
+Log.d(TAG, "list OK 2");
+					}
+				}
+				catch(Exception e) {
+					tr.str = e.getMessage();
+					Message completeMessage =
+		                        mHandler.obtainMessage(TASK_COMPLETE_ERR, tr);
+		            completeMessage.sendToTarget();
+//					callbackContext.error(e.getMessage());
+Log.d(TAG, "list xxx 4");
+				}
+			}
+		});
+		return true;
+	}
+	
+	
+	 Handler mHandler = new Handler(Looper.getMainLooper()) {
+         @Override
+         public void handleMessage(Message inputMessage) {
+             // Gets the task from the incoming Message object.
+        	 
+        	 TaskResult tr = (TaskResult) inputMessage.obj;
+
+             switch (inputMessage.what) {
+
+                 // The decoding is done
+                 case TASK_COMPLETE_OK:
+                	 
+                	 if (tr.jobj != null ) {
+                		 tr.callbackContext.success(tr.jobj);
+                	 } else if (tr.jarr != null) {
+                		 tr.callbackContext.success(tr.jarr);
+                	 } else if (tr.str != null) {
+                		 tr.callbackContext.success(tr.str);
+                	 } else {
+                		 tr.callbackContext.success();                		 
+                	 }
+                	 break;
+                 case TASK_COMPLETE_ERR:
+		        	 if (tr.str != null) {
+		        		 tr.callbackContext.error(tr.str);
+		        	 } else {
+		        		 tr.callbackContext.error("");                		 
+		        	 }
+                 default:
+                     /*
+                      * Pass along other messages from the UI
+                      */
+                     super.handleMessage(inputMessage);
+             }
+
+         }
+     };
+
+
+/*	
+	
+	private boolean list(final Context ctx, JSONArray params, final CallbackContext callbackContext) throws Exception {
+Log.d(TAG, "> list");
+
+		final JSONArray args = params;
+
+				try {
+Log.d(TAG, "list >");
+					String root = args.getString(0);
+					String dirName = args.getString(1);
+					if ("bundle".equals(root)) {
+						if (".".equals(dirName)) dirName = "";
+						String [] files = ctx.getAssets().list(dirName);
+						if (files.length == 0) {
+							try {
+								// This function will raise an exception if it is a directory.
+								ctx.getAssets().open(dirName);
+								// Log.d(TAG, dirName + " is not a directory");
+								callbackContext.error(dirName + " is not a directory");
+Log.d(TAG, "List error: Not a directory: " + dirName);
+								return false;
+							} catch (Exception e) {}
+						}
+						
+						JSONArray res = new JSONArray();
+						int i;
+						for (i=0; i<files.length; i++) {
+							JSONObject fileObject = new JSONObject();
+							fileObject.put("name", files[i]);
+							fileObject.put("isFolder", true);
+							try {
+								String [] subFolders = ctx.getAssets().list("".equals(dirName) ? files[i] : dirName + "/" +files[i]);
+								if (subFolders.length == 0) {
+									fileObject.put("isFolder", false);							
+								}
+							} catch(Exception e) {
+								fileObject.put("isFolder", false);							
+							}
+							res.put(fileObject);
+						}
+						callbackContext.success(res);
+Log.d(TAG, "list OK");
+						return true;
+					} else {
+						String rootPath = getRootPath(ctx,root);				
+						File dir;
+						if ("".equals(dirName) || ".".equals(dirName)) {
+							dir = new File(rootPath);					
+						} else {
+							dir = new File(rootPath + "/" + dirName);
+						}
+
+						if (!dir.exists()) {
+							Log.d(TAG, "The folder does not exist: " + dirName);
+							callbackContext.error("The file does not exist");
+Log.d(TAG, "list xxx 2");
+							return false;
+						}
+						
+						if (!dir.isDirectory()) {
+							Log.d(TAG, dirName + " is not a directory");
+							callbackContext.error(dirName + " is not a directory");
+Log.d(TAG, "list xxx 3");
+							return false;
+						}
+						
+						JSONArray res = new JSONArray();
+						
+						File []childs =dir.listFiles();
+						int i;
+						for (i=0; i<childs.length; i++) {
+							JSONObject fileObject = new JSONObject();
+							fileObject.put("name", childs[i].getName());
+							fileObject.put("isFolder", childs[i].isDirectory());
+							res.put(fileObject);
+						}
+						callbackContext.success(res);
+Log.d(TAG, "list OK 2");
+					}
+				}
+				catch(Exception e) {
+					callbackContext.error(e.getMessage());
+Log.d(TAG, "list xxx 4");
+				}
+		return true;
+	}
+	*/
+	
+	
 	@Override
-	public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
+	public boolean execute(String action, JSONArray args, final CallbackContext callbackContext) throws JSONException {
 		try {
 			final Context ctx= this.cordova.getActivity();
 			if ("read".equals(action)) {
-				String root = args.getString(0);
-				String fileName = args.getString(1);
-				byte[] buff;
-				if ("bundle".equals(root)) {
-					AssetManager assets = ctx.getAssets();
-					InputStream is = assets.open(fileName);
-					ByteArrayOutputStream outstream = new ByteArrayOutputStream();
-					int bytesRead;
-					byte[] buf = new byte[4 * 1024]; // 4K buffer
-					while ((bytesRead = is.read(buf)) != -1) {
-						outstream.write(buf,0,bytesRead);
-					}
-					buff = outstream.toByteArray(); 
-					
-				} else {
-					String rootPath = getRootPath(ctx,root);
-				
-				    File f= new File(rootPath + "/" + fileName);
-					if (!f.exists()) {
-					    Log.d(TAG, "The file does not exist:" + fileName);
-					    callbackContext.error("File does not exist");
-					    return false;
-					}
-					FileInputStream is = new FileInputStream(rootPath + "/" +fileName);
-					buff = new byte[(int)f.length()];
-					is.read(buff);
-					is.close();
-				}
-				String data64 = Base64.encodeToString(buff,  Base64.DEFAULT | Base64.NO_WRAP);
-				
-				callbackContext.success(data64);
-			    return true; 		
+				return readFile(ctx, args, callbackContext);		
 			}
-			if ("write".equals(action)) {			
-				String root = args.getString(0);
-				if ("bundle".equals(root)) {
-				    callbackContext.error("Bundle is readonly");
-				    return false;
-				}
-				String rootPath = getRootPath(ctx,root);
-				String fileName = args.getString(1);
-				String data64 = args.getString(2);
-				byte []data = Base64.decode(data64, Base64.DEFAULT);
-				  
-				  
-				File f= new File(rootPath + "/" +fileName);
-				if (f.exists()) {
-					f.delete();
-				}
-				
-				File dir = f.getParentFile();
-				dir.mkdirs();
-								
-				FileOutputStream fstream;
-				fstream = new FileOutputStream(rootPath + "/" +fileName);
-				fstream.write(data);
-				fstream.flush();
-				fstream.close();
-				
-			         
-				callbackContext.success();
-			    return true; 		
+			else if ("write".equals(action)) {				
+				return writeFile(ctx, args, callbackContext);		
 			}
-			if ("remove".equals(action)) {
-				String root = args.getString(0);
-				if ("bundle".equals(root)) {
-				    callbackContext.error("Bundle is readonly");
-				    return false;
-				}
-				String rootPath = getRootPath(ctx,root);
-				String fileName = args.getString(1);
-				File f= new File(rootPath + "/" + fileName);
-				if (f.exists()) {
-					if (f.isDirectory())
-						DeleteRecursive(f);
-					else
-						f.delete();
-				}
-				callbackContext.success();
-			    return true;	
+			else if ("remove".equals(action)) {
+				return remove(ctx, args, callbackContext);		
 			}
-			if ("download".equals(action)) {
-				String root = args.getString(0);
-				if ("bundle".equals(root)) {
-				    callbackContext.error("Bundle is readonly");
-				    return false;
-				}
-
-				final String rootPath = getRootPath(ctx,root);
-				String url = args.getString(1);
-				final String fileName = args.getString(2);
-				
-				final CallbackContext cb = callbackContext;
-				
-				URLNetRequester.NewRequest("", url, url, new URLNetRequester.AnswerHandler() {
-					
-					@Override
-					public void OnAnswer(Object CallbackParam, byte[] Res) {
-						if (Res == null) {
-							cb.error("Network Error");
-						}
-						
-						try {
-							File f= new File(rootPath + "/" +fileName);
-							if (f.exists()) {
-								f.delete();
-							}
-
-							File dir = f.getParentFile();
-							dir.mkdirs();							
-							
-							FileOutputStream fstream;
-							fstream = new FileOutputStream(rootPath + "/" +fileName);
-							fstream.write(Res);
-							fstream.flush();
-							fstream.close();
-						         
-							cb.success();
-						} catch(Exception e) {
-						    cb.error(e.getMessage());
-						}
-					}
-				});
-			    return true; 		
+			else if ("download".equals(action)) {	
+				return download(ctx, args, callbackContext);		
 			}
-			if ("getUrl".equals(action)) {
-				String root = args.getString(0);
-				String fileName = args.getString(1);
-				String res;
-				if ("bundle".equals(root)) {
-					res = "file:///android_asset/" + fileName;
-				} else {
-					String rootPath = getRootPath(ctx,root);				
-					res = "file://" + rootPath + "/" + fileName;
-				}
-				callbackContext.success(res);
-			    return true;
-				
+			else if ("getUrl".equals(action)) {
+				return getUrl(ctx, args, callbackContext);		
 			}
-			if ("createFolder".equals(action)) {
-				String root = args.getString(0);
-				if ("bundle".equals(root)) {
-				    callbackContext.error("Bundle is readonly");
-				    return false;
-				}
-				String rootPath = getRootPath(ctx,root);				
-				String dirName = args.getString(1);
-				File dir = new File(rootPath + "/" + dirName);
-				dir.mkdirs();
-				callbackContext.success();
-			    return true; 		
+			else if ("createFolder".equals(action)) {
+				return createFolder(ctx, args, callbackContext);		
 			}
-			if ("list".equals(action)) {
-				String root = args.getString(0);
-				String dirName = args.getString(1);
-				if ("bundle".equals(root)) {
-					if (".".equals(dirName)) dirName="";
-					String [] files =ctx.getAssets().list(dirName);
-					if (files.length==0) {
-						
-						try {
-							// This function will raise an exception if it is a directory.
-							ctx.getAssets().open( dirName);
-						    Log.d(TAG, dirName + " it's not a directory");
-						    callbackContext.error(dirName + " is not a directory");
-						    return false;		
-						} catch (Exception e) {
-						}
-					}
-					
-					JSONArray res = new JSONArray();
-					
-					int i;
-					for (i=0; i<files.length; i++) {
-						JSONObject fileObject = new JSONObject();
-						fileObject.put("name", files[i]);
-						fileObject.put("isFolder", true);
-						try {
-							String [] subFolders = ctx.getAssets().list("".equals(dirName) ? files[i] : dirName + "/" +files[i]);
-							if (subFolders.length == 0) {
-								fileObject.put("isFolder", false);							
-							}
-						} catch(Exception e) {
-							fileObject.put("isFolder", false);							
-						}
-						res.put(fileObject);
-					}
-					callbackContext.success(res);
-				    return true;
-					
-					
-				} else {
-
-					String rootPath = getRootPath(ctx,root);				
-					File dir;
-					if ("".equals(dirName) || ".".equals(dirName)) {
-						dir = new File(rootPath);					
-					} else {
-						dir = new File(rootPath + "/" + dirName);
-					}
-						
-					if (!dir.exists()) {
-					    Log.d(TAG, "The folder does not exist:" + dirName);
-					    callbackContext.error("The file does not exist");
-					    return false;	
-					}
-					
-					if (!dir.isDirectory()) {
-					    Log.d(TAG, dirName + " is not a directory");
-					    callbackContext.error(dirName + " is not a directory");
-					    return false;						
-					}
-					
-					JSONArray res = new JSONArray();
-					
-					File []childs =dir.listFiles();
-					int i;
-					for (i=0; i<childs.length; i++) {
-						JSONObject fileObject = new JSONObject();
-						fileObject.put("name", childs[i].getName());
-						fileObject.put("isFolder", childs[i].isDirectory());
-						res.put(fileObject);
-					}
-					callbackContext.success(res);
-				    return true;
-				}
+			else if ("list".equals(action)) {
+				return list(ctx, args, callbackContext);
 			}
+Log.d(TAG, "WTF? " + action);
 			return false;		
 		} catch(Exception e) {
-		    System.err.println("Exception: " + e.getMessage());
-		    callbackContext.error(e.getMessage());
-		    return false;
+			System.err.println("Exception: " + e.getMessage());
+Log.d(TAG, "Main Exception: " + e.getMessage());
+			callbackContext.error(e.getMessage());
+			return false;
 		} 
 	}
 }
