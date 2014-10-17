@@ -100,7 +100,7 @@ public class SimpleFilePlugin extends CordovaPlugin {
 
 	private boolean readFile(final Context ctx, final JSONArray params, final CallbackContext callbackContext) throws Exception {
 
-		cordova.getThreadPool().execute(new Runnable() {
+		cordova.getActivity().runOnUiThread(new Runnable() {
 			public void run() {
 				try {
 					String root = params.getString(0);
@@ -142,7 +142,7 @@ public class SimpleFilePlugin extends CordovaPlugin {
 	}
 
 	private boolean writeFile(final Context ctx, final JSONArray params, final CallbackContext callbackContext) throws Exception {
-		cordova.getThreadPool().execute(new Runnable() {
+		cordova.getActivity().runOnUiThread(new Runnable() {
 			public void run() {
 				try {
 					String root = params.getString(0);
@@ -164,7 +164,7 @@ public class SimpleFilePlugin extends CordovaPlugin {
 	
 
 	private boolean remove(final Context ctx, final JSONArray args, final CallbackContext callbackContext) throws Exception {
-		cordova.getThreadPool().execute(new Runnable() {
+		cordova.getActivity().runOnUiThread(new Runnable() {
 			public void run() {
 				try {		
 					String root = args.getString(0);
@@ -254,7 +254,7 @@ public class SimpleFilePlugin extends CordovaPlugin {
 	}
 	
 	private boolean createFolder(final Context ctx, final JSONArray params, final CallbackContext callbackContext) throws Exception {
-		cordova.getThreadPool().execute(new Runnable() {
+		cordova.getActivity().runOnUiThread(new Runnable() {
 			public void run() {
 				try {
 					String root = params.getString(0);
@@ -346,7 +346,7 @@ public class SimpleFilePlugin extends CordovaPlugin {
 	
 
 	private boolean list(final Context ctx, final JSONArray params, final CallbackContext callbackContext) throws Exception {
-		cordova.getThreadPool().execute(new Runnable() {
+		cordova.getActivity().runOnUiThread(new Runnable() {
 			public void run() {
 				try {
 
