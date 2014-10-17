@@ -77,7 +77,7 @@ var simpleFile = {
     bundle: new FileSystem("bundle"),
     cache: new FileSystem("cache"),
     tmp: new FileSystem("tmp"),
-    "copy": function (fromFS, fromItem, toFS, toItem, cb, errcb) {
+/*    "copy": function (fromFS, fromItem, toFS, toItem, cb, errcb) {
         window.plugins.simpleFile[fromFS].list(fromItem, function(list) {
             window.plugins.simpleFile[toFS].createFolder(toItem, function() {
                 async.eachSeries(list, function(f, cb2) {
@@ -102,6 +102,15 @@ var simpleFile = {
                 window.plugins.simpleFile[toFS].write(toItem, data, cb, errcb);
             }, errcb);
         });
+    } */
+    copy: function(fromFS, fromItem, toFS, toItem, cb, errcb) {
+        cordova.exec(
+            cb,
+            errcb,
+            "SimpleFilePlugin",
+            "copy",
+            [fromFS, fromItem, toFS, toItem]
+        );
     }
 };
 
