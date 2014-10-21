@@ -430,20 +430,24 @@ static const short _base64DecodingTable[256] = {
 
 - (void)copy:(CDVInvokedUrlCommand*)command
 {
-    CDVPluginResult* pluginResult = nil;
-    @try {
-        NSString *rootFrom=[self getRootPath:[command.arguments objectAtIndex:0]];
-        NSString *fileFrom = [command.arguments objectAtIndex:1];
-        NSString *rootTo=[self getRootPath:[command.arguments objectAtIndex:2]];
-        NSString *fileTo = [command.arguments objectAtIndex:3];
-        NSString *fullPathFileFrom = [rootFrom stringByAppendingPathComponent:fileFrom];
-        NSString *fullPathFileTo = [rootTo stringByAppendingPathComponent:fileTo];
-        [self copyFrom:fullPathFileFrom to:fullPathFileTo ];
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-    } @catch (NSException *e) {
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[e reason]];
-    }
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    
+    [self.commandDelegate runInBackground:^{
+        
+        CDVPluginResult* pluginResult = nil;
+        @try {
+            NSString *rootFrom=[self getRootPath:[command.arguments objectAtIndex:0]];
+            NSString *fileFrom = [command.arguments objectAtIndex:1];
+            NSString *rootTo=[self getRootPath:[command.arguments objectAtIndex:2]];
+            NSString *fileTo = [command.arguments objectAtIndex:3];
+            NSString *fullPathFileFrom = [rootFrom stringByAppendingPathComponent:fileFrom];
+            NSString *fullPathFileTo = [rootTo stringByAppendingPathComponent:fileTo];
+            [self copyFrom:fullPathFileFrom to:fullPathFileTo ];
+            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        } @catch (NSException *e) {
+            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[e reason]];
+        }
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    }];
 }
 
 
