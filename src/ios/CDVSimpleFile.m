@@ -198,7 +198,7 @@ static const short _base64DecodingTable[256] = {
     } else if ([@"cache" isEqualToString:type]) {
         res = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) objectAtIndex:0];
     } else if ([@"tmp" isEqualToString:type]) {
-        res = [NSTemporaryDirectory()stringByStandardizingPath];
+        res = [NSTemporaryDirectory() stringByStandardizingPath];
     }
     
     return res;
