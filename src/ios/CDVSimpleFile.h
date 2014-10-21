@@ -22,6 +22,7 @@
 - (void)download:(CDVInvokedUrlCommand*)command;
 - (void)createFolder:(CDVInvokedUrlCommand*)command;
 - (void)list:(CDVInvokedUrlCommand*)command;
+- (void)copy:(CDVInvokedUrlCommand*)command;
 
 @end
 

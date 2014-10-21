@@ -389,4 +389,63 @@ static const short _base64DecodingTable[256] = {
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
+- (void)copyFrom:(NSString *)from to:(NSString *)to
+{
+    BOOL success;
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    BOOL isDir;
+    BOOL exist;
+    exist = [fileManager fileExistsAtPath:from isDirectory:&isDir];
+    if (!exist) {
+        [NSException raise:@"File does not exist" format:@" %@", from];
+    }
+    if (isDir) {
+        NSString *newDir =  [to stringByAppendingPathComponent:[from stringByDeletingPathExtension] ];
+        NSError *error;
+        success = [fileManager createDirectoryAtPath:newDir withIntermediateDirectories:YES attributes:nil error:&error];
+        if (!success) {
+            [NSException raise:@"Error creating directory" format:@"%@: %@", [error description], newDir];
+        }
+        NSArray *contents = [fileManager contentsOfDirectoryAtPath:from error:&error];
+        if (contents != nil) {
+            for (NSString *f in contents ) {
+                NSString *newFrom = [from stringByAppendingPathComponent:f];
+                NSString *newTo = [to stringByAppendingPathComponent:f];
+                [self copyFrom: newFrom to:newTo];
+            }
+        } else {
+            [NSException raise:@"It is not a directory" format:@" %@", from];
+        }
+    } else {
+        NSData *data = [NSData dataWithContentsOfFile:from];
+        if (data==nil) {
+            [NSException raise:@"Error reading file" format:@" %@", from];
+        }
+        success = [data writeToFile:to atomically:true];
+        if (!success) {
+            [NSException raise:@"Error wrting file" format:@" %@", to];
+        }
+    }
+}
+
+- (void)copy:(CDVInvokedUrlCommand*)command
+{
+    CDVPluginResult* pluginResult = nil;
+    @try {
+        NSString *rootFrom=[self getRootPath:[command.arguments objectAtIndex:0]];
+        NSString *fileFrom = [command.arguments objectAtIndex:1];
+        NSString *rootTo=[self getRootPath:[command.arguments objectAtIndex:2]];
+        NSString *fileTo = [command.arguments objectAtIndex:3];
+        NSString *fullPathFileFrom = [rootFrom stringByAppendingPathComponent:fileFrom];
+        NSString *fullPathFileTo = [rootTo stringByAppendingPathComponent:fileTo];
+        [self copyFrom:fullPathFileFrom to:fullPathFileTo ];
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    } @catch (NSException *e) {
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[e reason]];
+    }
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+
+
 @end
