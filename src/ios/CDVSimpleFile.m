@@ -193,7 +193,11 @@ static const short _base64DecodingTable[256] = {
 
 - (void)pluginInitialize
 {
-    [self addSkipBackupAttributeToPath: [self getRootPath:@"internal"]];
+    NSString *noCloudPath=[self getRootPath:@"internal"];
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSError *error;
+    [fileManager createDirectoryAtPath:noCloudPath withIntermediateDirectories:YES attributes:nil error:&error];
+    [self addSkipBackupAttributeToPath: noCloudPath];
 }
 
 -(NSString *)getRootPath: (NSString *)type
