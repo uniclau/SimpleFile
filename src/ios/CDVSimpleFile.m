@@ -7,6 +7,7 @@
 //
 
 #import <Cordova/CDV.h>
+#include <sys/xattr.h>
 #import "CDVSimpleFile.h"
 #import "NetRequest.h"
 
@@ -192,7 +193,6 @@ static const short _base64DecodingTable[256] = {
 
 - (void)pluginInitialize
 {
-    NSLog(@"Echo plugin init.");
     [self addSkipBackupAttributeToPath: [self getRootPath:@"internal"]];
 }
 
@@ -410,7 +410,7 @@ static const short _base64DecodingTable[256] = {
         [NSException raise:@"File does not exist" format:@" %@", from];
     }
     if (isDir) {
-        NSString *newDir =  [to stringByAppendingPathComponent:[from stringByDeletingPathExtension] ];
+        NSString *newDir =  [to stringByAppendingPathComponent:[from lastPathComponent] ];
         NSError *error;
         success = [fileManager createDirectoryAtPath:newDir withIntermediateDirectories:YES attributes:nil error:&error];
         if (!success) {
