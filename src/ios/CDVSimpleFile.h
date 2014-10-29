@@ -23,6 +23,7 @@
 - (void)createFolder:(CDVInvokedUrlCommand*)command;
 - (void)list:(CDVInvokedUrlCommand*)command;
 - (void)copy:(CDVInvokedUrlCommand*)command;
+- (void)pluginInitialize;
 
 @end
 

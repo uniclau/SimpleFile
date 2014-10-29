@@ -185,6 +185,16 @@ static const short _base64DecodingTable[256] = {
     return objData;
 }
 
+- (void)addSkipBackupAttributeToPath:(NSString*)path {
+    u_int8_t b = 1;
+    setxattr([path fileSystemRepresentation], "com.apple.MobileBackup", &b, 1, 0, 0);
+}
+
+- (void)pluginInitialize
+{
+    NSLog(@"Echo plugin init.");
+    [self addSkipBackupAttributeToPath: [self getRootPath:@"internal"]];
+}
 
 -(NSString *)getRootPath: (NSString *)type
 {
