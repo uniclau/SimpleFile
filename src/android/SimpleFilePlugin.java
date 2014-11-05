@@ -281,6 +281,7 @@ public class SimpleFilePlugin extends CordovaPlugin {
 
 	
 	private JSONArray list(Context ctx, String root, String dirName) throws Exception {
+		Log.d(TAG, "start list: " + root + "/" + dirName );
 		JSONArray res = new JSONArray();
 		if ("bundle".equals(root)) {
 			if (".".equals(dirName)) dirName = "";
@@ -343,6 +344,7 @@ public class SimpleFilePlugin extends CordovaPlugin {
 				res.put(fileObject);
 			}
 		}
+		Log.d(TAG, "end list: " + root + "/" + dirName );
 		return res;
 		
 		
@@ -350,6 +352,7 @@ public class SimpleFilePlugin extends CordovaPlugin {
 	
 
 	private boolean list(final Context ctx, final JSONArray params, final CallbackContext callbackContext) throws Exception {
+		Log.d(TAG, "start list (main thread): " );
 		cordova.getActivity().runOnUiThread(new Runnable() {
 			public void run() {
 				try {
@@ -359,10 +362,11 @@ public class SimpleFilePlugin extends CordovaPlugin {
 					JSONArray res = list(ctx, root, dirName);
 			            
 					callbackContext.success(res);
+					Log.d(TAG, "end list (main thread)");
 				}
 				catch(Exception e) {
-					Log.d(TAG, e.getMessage());
 					callbackContext.error(e.getMessage());
+					Log.d(TAG, e.getMessage());
 				}
 			}
 		});
