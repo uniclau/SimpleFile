@@ -69,6 +69,7 @@ public class SimpleFilePlugin extends CordovaPlugin {
 	}
 	
 	private byte[] readFile(Context ctx, String root, String fileName) throws Exception {
+		Log.d(TAG, "start Read: " + root + "/" + fileName );
 		byte[] buff;
 		if ("bundle".equals(root)) {
 			AssetManager assets = ctx.getAssets();
@@ -95,6 +96,7 @@ public class SimpleFilePlugin extends CordovaPlugin {
 			is.read(buff);
 			is.close();
 		}
+		Log.d(TAG, "end Read: " + root + "/" + fileName );
 		return buff;
 	}
 
@@ -120,6 +122,7 @@ public class SimpleFilePlugin extends CordovaPlugin {
 	}
 	
 	private void writeFile(Context ctx, String root, String fileName, byte [] data) throws Exception {
+		Log.d(TAG, "start write: " + root + "/" + fileName );
 		if ("bundle".equals(root)) {
 			throw new Exception("The bundle file system is read only");
 		}
@@ -139,6 +142,7 @@ public class SimpleFilePlugin extends CordovaPlugin {
 		fstream.write(data);
 		fstream.flush();
 		fstream.close();
+		Log.d(TAG, "end write: " + root + "/" + fileName );
 	}
 
 	private boolean writeFile(final Context ctx, final JSONArray params, final CallbackContext callbackContext) throws Exception {
@@ -149,7 +153,7 @@ public class SimpleFilePlugin extends CordovaPlugin {
 					String fileName = params.getString(1);
 					String data64 = params.getString(2);
 					byte [] data = Base64.decode(data64, Base64.DEFAULT);
-					
+
 					writeFile(ctx, root, fileName, data);
 		            
 					callbackContext.success();
