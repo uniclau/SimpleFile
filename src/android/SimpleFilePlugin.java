@@ -285,12 +285,16 @@ public class SimpleFilePlugin extends CordovaPlugin {
 		JSONArray res = new JSONArray();
 		if ("bundle".equals(root)) {
 			if (".".equals(dirName)) dirName = "";
+			Log.d(TAG, "list  - 1");
 			String [] files = ctx.getAssets().list(dirName);
+			Log.d(TAG, "list  - 2");
 			if (files.length == 0) {
 				boolean isDirectory = true;
 				try {
 					// This function will raise an exception if it is a directory.
+					Log.d(TAG, "list  - 3");
 					ctx.getAssets().open(dirName);
+					Log.d(TAG, "list  - 4");
 					isDirectory = false;
 				} catch (Exception e) {}
 				if (!isDirectory) {
@@ -324,17 +328,21 @@ public class SimpleFilePlugin extends CordovaPlugin {
 				dir = new File(rootPath + "/" + dirName);
 			}
 
+					
+			Log.d(TAG, "list  - 5");
 			if (!dir.exists()) {
 				Log.d(TAG, "The folder does not exist: " + dirName);
 				throw new Error("The folder does not exist: " + dirName);
 			}
 			
+			Log.d(TAG, "list  - 6");
 			if (!dir.isDirectory()) {
 				Log.d(TAG, dirName + " is not a directory");
 				throw new Error(dirName + " is not a directory");
 			}
 
 		
+			Log.d(TAG, "list  - 7");
 			File []childs =dir.listFiles();
 			int i;
 			for (i=0; i<childs.length; i++) {
