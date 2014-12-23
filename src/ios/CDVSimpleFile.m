@@ -207,6 +207,8 @@ static const short _base64DecodingTable[256] = {
         res = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0];
     } else if ([@"internal" isEqualToString:type]) {
         res = [[NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES) objectAtIndex:0] stringByAppendingPathComponent: @"NoCloud"];
+    } else if ([@"user" isEqualToString:type]) {
+        res = [NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES) objectAtIndex:0];
     } else if ([@"bundle" isEqualToString:type]) {
         res = [[NSBundle mainBundle] bundlePath];
     } else if ([@"cache" isEqualToString:type]) {

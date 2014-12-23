@@ -59,6 +59,8 @@ public class SimpleFilePlugin extends CordovaPlugin {
 			}
 		} else if ("internal".equals(type)) {
 			return ctx.getFilesDir().getAbsolutePath();				
+		} else if ("user".equals(type)) {
+			return ctx.getFilesDir().getAbsolutePath();		
 		} else if ("cache".equals(type)) {
 			return ctx.getCacheDir().getAbsolutePath();				
 		} else if ("tmp".equals(type)) {
@@ -309,7 +311,9 @@ public class SimpleFilePlugin extends CordovaPlugin {
 				fileObject.put("name", files[i]);
 				fileObject.put("isFolder", true);
 				try {
+					Log.d(TAG, "list  - 2.1");
 					String [] subFolders = ctx.getAssets().list("".equals(dirName) ? files[i] : dirName + "/" +files[i]);
+					Log.d(TAG, "list  - 2.2");
 					if (subFolders.length == 0) {
 						fileObject.put("isFolder", false);							
 					}

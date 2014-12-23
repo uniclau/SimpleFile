@@ -17,11 +17,15 @@ From the root of a cordova project run:
 Javascript API
 -----
 
-The plugin exposes the ```window.plugins.simpleFile``` object. It provides access to three different **file systems** through their corresponding object:
+The plugin exposes the ```window.plugins.simpleFile``` object. It provides access to different **file systems** through their corresponding object:
 
 * ```plugins.simpleFile.internal```
-	* Private files stored in the app's data folder.
+	* Private files stored in the app's data folder. The content will not be saved in iCloud
 	* On iOS: ```/var/mobile/Applications/<UUID>/Library/NoCloud```
+	* On Android: ```/data/data/<app-id>/files```
+* ```plugins.simpleFile.internal```
+	* Private files stored in the app's data folder. The content will be saved in iCloud.
+	* On iOS: ```/var/mobile/Applications/<UUID>/Library```
 	* On Android: ```/data/data/<app-id>/files```
 * ```plugins.simpleFile.external```
 	* On Android, it provides access to the device's SD card. It defaults to the private app storage if no SD card is not present in older devices. 
