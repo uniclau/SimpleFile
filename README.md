@@ -7,6 +7,13 @@ You can also create/remove directories, extract the URI from a file and download
 
 It currently features support for **Android** and **iOS**. 
 
+Install
+-----
+
+From the root of a cordova project run: 
+
+	$ cordova plugin install https://github.com/uniclau/SimpleFile.git
+
 Javascript API
 -----
 
