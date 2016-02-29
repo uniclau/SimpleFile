@@ -98,15 +98,15 @@ public class URLNetRequester extends Thread {
 	}
 	
 	public void run() {
-		java.net.URL url = new java.net.URL(url);
-		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+		java.net.URL reqUrl = new java.net.URL(url);
+		java.net.HttpURLConnection conn = (java.net.HttpURLConnection) reqUrl.openConnection();
 
 		try {
 		    byte[] buf = new byte[4 * 1024]; // 4K buffer
 		    int bytesRead;    
 		    ByteArrayOutputStream r = new ByteArrayOutputStream();	
 
-	    	InputStream instream = new BufferedInputStream(conn.getInputStream());
+	    	InputStream instream = new java.io.BufferedInputStream(conn.getInputStream());
 	    	while ((bytesRead = instream.read(buf)) != -1) {
 	    		if (isResponseSent()) {
 	    			// removeFromPool();
