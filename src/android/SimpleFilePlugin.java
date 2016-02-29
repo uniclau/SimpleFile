@@ -111,7 +111,7 @@ public class SimpleFilePlugin extends CordovaPlugin {
 					String fileName = params.getString(1);
 					byte [] buff = readFile(ctx, root, fileName);
 					String data64 = Base64.encodeToString(buff,  Base64.DEFAULT | Base64.NO_WRAP);
-		            
+					
 					callbackContext.success(data64);
 				}
 				catch(Exception e) {
@@ -157,7 +157,7 @@ public class SimpleFilePlugin extends CordovaPlugin {
 					byte [] data = Base64.decode(data64, Base64.DEFAULT);
 
 					writeFile(ctx, root, fileName, data);
-		            
+					
 					callbackContext.success();
 				}
 				catch(Exception e) {
@@ -235,7 +235,7 @@ public class SimpleFilePlugin extends CordovaPlugin {
 					fstream.write(Res);
 					fstream.flush();
 					fstream.close();
-        
+					
 					callbackContext.success();
 				} catch(Exception e) {
 					callbackContext.error(e.getMessage());
@@ -332,7 +332,7 @@ public class SimpleFilePlugin extends CordovaPlugin {
 				dir = new File(rootPath + "/" + dirName);
 			}
 
-					
+			
 			Log.d(TAG, "list  - 5");
 			if (!dir.exists()) {
 				Log.d(TAG, "The folder does not exist: " + dirName);
@@ -345,7 +345,7 @@ public class SimpleFilePlugin extends CordovaPlugin {
 				throw new Error(dirName + " is not a directory");
 			}
 
-		
+			
 			Log.d(TAG, "list  - 7");
 			File []childs =dir.listFiles();
 			int i;
@@ -372,7 +372,7 @@ public class SimpleFilePlugin extends CordovaPlugin {
 					String root = params.getString(0);
 					String dirName = params.getString(1);
 					JSONArray res = list(ctx, root, dirName);
-			            
+					
 					callbackContext.success(res);
 					Log.d(TAG, "end list (main thread)");
 				}
@@ -433,7 +433,7 @@ public class SimpleFilePlugin extends CordovaPlugin {
 					String rootTo = params.getString(2);
 					String fileTo = params.getString(3);
 					copy(ctx, rootFrom, fileFrom, rootTo, fileTo);
-			            
+					
 					callbackContext.success();
 				}
 				catch(Exception e) {
@@ -444,7 +444,6 @@ public class SimpleFilePlugin extends CordovaPlugin {
 		});
 		return true;
 	}
-	
 	
 	
 	@Override
@@ -473,7 +472,7 @@ public class SimpleFilePlugin extends CordovaPlugin {
 				return list(ctx, args, callbackContext);
 			}
 			else if ("copy".equals(action)) {
-					return copy(ctx, args, callbackContext);
+				return copy(ctx, args, callbackContext);
 			}
 			return false;		
 		} catch(Exception e) {

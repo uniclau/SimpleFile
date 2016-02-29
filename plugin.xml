@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
-           id="com.uniclau.simplefile"
-      version="0.1.0">
+<plugin xmlns="http://www.phonegap.com/ns/plugins/1.0" id="com.uniclau.simplefile" version="0.1.1">
     <name>SimpleFile</name>
     <description>Simple File Plugin</description>
     <license>MIT</license>
