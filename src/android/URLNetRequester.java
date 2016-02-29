@@ -98,10 +98,10 @@ public class URLNetRequester extends Thread {
 	}
 	
 	public void run() {
-		java.net.URL reqUrl = new java.net.URL(url);
-		java.net.HttpURLConnection conn = (java.net.HttpURLConnection) reqUrl.openConnection();
-
 		try {
+			java.net.URL reqUrl = new java.net.URL(url);
+			java.net.HttpURLConnection conn = (java.net.HttpURLConnection) reqUrl.openConnection();
+
 		    byte[] buf = new byte[4 * 1024]; // 4K buffer
 		    int bytesRead;    
 		    ByteArrayOutputStream r = new ByteArrayOutputStream();	
