@@ -29,7 +29,7 @@
 
 
         <source-file src="src/android/SimpleFilePlugin.java" target-dir="src/com/uniclau/simplefile" />      
-        <!-- <source-file src="src/android/URLNetRequester.java" target-dir="src/com/uniclau/network" />       -->
+        <source-file src="src/android/URLNetRequester.java" target-dir="src/com/uniclau/network" />      
      </platform>          
 
      <platform name="ios">

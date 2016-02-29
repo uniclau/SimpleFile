@@ -12,7 +12,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-// import com.uniclau.network.URLNetRequester;
+import com.uniclau.network.URLNetRequester;
 
 import android.content.Context;
 import android.content.res.AssetManager;
