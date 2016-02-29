@@ -1,7 +1,7 @@
 SimpleFile
 ==========
 
-SimpleFile is a Cordova/Phonegap plugin that lets you read and write files from the filesystem.
+SimpleFile is a Cordova plugin that lets you read and write files from the filesystem.
 
 You can also create/remove directories, extract the URI from a file and download remote content to a file.
 
@@ -12,7 +12,7 @@ Install
 
 From the root of a cordova project run: 
 
-	$ cordova plugin install https://github.com/uniclau/SimpleFile.git
+	$ cordova plugin install https://github.com/TvrboPro/SimpleFile.git
 
 Javascript API
 -----

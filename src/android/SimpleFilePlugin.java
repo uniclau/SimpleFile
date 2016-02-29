@@ -12,7 +12,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.uniclau.network.URLNetRequester;
+// import com.uniclau.network.URLNetRequester;
 
 import android.content.Context;
 import android.content.res.AssetManager;
@@ -111,7 +111,7 @@ public class SimpleFilePlugin extends CordovaPlugin {
 					String fileName = params.getString(1);
 					byte [] buff = readFile(ctx, root, fileName);
 					String data64 = Base64.encodeToString(buff,  Base64.DEFAULT | Base64.NO_WRAP);
-		            
+					
 					callbackContext.success(data64);
 				}
 				catch(Exception e) {
@@ -157,7 +157,7 @@ public class SimpleFilePlugin extends CordovaPlugin {
 					byte [] data = Base64.decode(data64, Base64.DEFAULT);
 
 					writeFile(ctx, root, fileName, data);
-		            
+					
 					callbackContext.success();
 				}
 				catch(Exception e) {
@@ -193,57 +193,57 @@ public class SimpleFilePlugin extends CordovaPlugin {
 		return true; 	
 	}
 
-	private boolean download(final Context ctx, JSONArray params, final CallbackContext callbackContext) throws Exception {
+	// private boolean download(final Context ctx, JSONArray params, final CallbackContext callbackContext) throws Exception {
 		
-		final JSONArray args = params;
-		final String root = args.getString(0);
+	// 	final JSONArray args = params;
+	// 	final String root = args.getString(0);
 
-		if ("bundle".equals(root)) {
-			callbackContext.error("The bundle file system is read only");
-			return false;
-		}
+	// 	if ("bundle".equals(root)) {
+	// 		callbackContext.error("The bundle file system is read only");
+	// 		return false;
+	// 	}
 		
-		String url;
-		try {
-			url = args.getString(1);
-		}
-		catch(Exception e) { return false;}
+	// 	String url;
+	// 	try {
+	// 		url = args.getString(1);
+	// 	}
+	// 	catch(Exception e) { return false;}
 
-		URLNetRequester.NewRequest("", url, url, new URLNetRequester.AnswerHandler() {			
-			@Override
-			public void OnAnswer(Object CallbackParam, byte[] Res) {
+	// 	URLNetRequester.NewRequest("", url, url, new URLNetRequester.AnswerHandler() {			
+	// 		@Override
+	// 		public void OnAnswer(Object CallbackParam, byte[] Res) {
 
-				if (Res == null) {
+	// 			if (Res == null) {
 					
 
-					callbackContext.error("Network Error");
-					return;
-				}
-				try {
-					String rootPath = getRootPath(ctx, root);
-					String fileName = args.getString(2);
-					File f= new File(rootPath + "/" + fileName);
-					if (f.exists()) {
-						f.delete();
-					}
+	// 				callbackContext.error("Network Error");
+	// 				return;
+	// 			}
+	// 			try {
+	// 				String rootPath = getRootPath(ctx, root);
+	// 				String fileName = args.getString(2);
+	// 				File f= new File(rootPath + "/" + fileName);
+	// 				if (f.exists()) {
+	// 					f.delete();
+	// 				}
 
-					File dir = f.getParentFile();
-					dir.mkdirs();							
+	// 				File dir = f.getParentFile();
+	// 				dir.mkdirs();							
 					
-					FileOutputStream fstream;
-					fstream = new FileOutputStream(rootPath + "/" +fileName);
-					fstream.write(Res);
-					fstream.flush();
-					fstream.close();
-        
-					callbackContext.success();
-				} catch(Exception e) {
-					callbackContext.error(e.getMessage());
-				}
-			}
-		});
-		return true; 	
-	}
+	// 				FileOutputStream fstream;
+	// 				fstream = new FileOutputStream(rootPath + "/" +fileName);
+	// 				fstream.write(Res);
+	// 				fstream.flush();
+	// 				fstream.close();
+					
+	// 				callbackContext.success();
+	// 			} catch(Exception e) {
+	// 				callbackContext.error(e.getMessage());
+	// 			}
+	// 		}
+	// 	});
+	// 	return true; 	
+	// }
 
 	private boolean getUrl(final Context ctx, JSONArray args, final CallbackContext callbackContext) throws Exception {
 		String root = args.getString(0);
@@ -332,7 +332,7 @@ public class SimpleFilePlugin extends CordovaPlugin {
 				dir = new File(rootPath + "/" + dirName);
 			}
 
-					
+			
 			Log.d(TAG, "list  - 5");
 			if (!dir.exists()) {
 				Log.d(TAG, "The folder does not exist: " + dirName);
@@ -345,7 +345,7 @@ public class SimpleFilePlugin extends CordovaPlugin {
 				throw new Error(dirName + " is not a directory");
 			}
 
-		
+			
 			Log.d(TAG, "list  - 7");
 			File []childs =dir.listFiles();
 			int i;
@@ -372,7 +372,7 @@ public class SimpleFilePlugin extends CordovaPlugin {
 					String root = params.getString(0);
 					String dirName = params.getString(1);
 					JSONArray res = list(ctx, root, dirName);
-			            
+					
 					callbackContext.success(res);
 					Log.d(TAG, "end list (main thread)");
 				}
@@ -433,7 +433,7 @@ public class SimpleFilePlugin extends CordovaPlugin {
 					String rootTo = params.getString(2);
 					String fileTo = params.getString(3);
 					copy(ctx, rootFrom, fileFrom, rootTo, fileTo);
-			            
+					
 					callbackContext.success();
 				}
 				catch(Exception e) {
@@ -460,9 +460,9 @@ public class SimpleFilePlugin extends CordovaPlugin {
 			else if ("remove".equals(action)) {
 				return remove(ctx, args, callbackContext);		
 			}
-			else if ("download".equals(action)) {	
-				return download(ctx, args, callbackContext);		
-			}
+			// else if ("download".equals(action)) {	
+			// 	return download(ctx, args, callbackContext);		
+			// }
 			else if ("getUrl".equals(action)) {
 				return getUrl(ctx, args, callbackContext);		
 			}
@@ -473,7 +473,7 @@ public class SimpleFilePlugin extends CordovaPlugin {
 				return list(ctx, args, callbackContext);
 			}
 			else if ("copy".equals(action)) {
-					return copy(ctx, args, callbackContext);
+				return copy(ctx, args, callbackContext);
 			}
 			return false;		
 		} catch(Exception e) {

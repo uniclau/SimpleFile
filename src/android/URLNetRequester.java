@@ -59,33 +59,33 @@ public class URLNetRequester extends Thread {
 	private String cancelString;
 	private AnswerHandler answerHandler;
 	private Boolean responseSended;
-    private Handler mHandler = new Handler();
-    private byte [] Res;
-    private Object callbackParam;
-    
-    private synchronized void addToPool() {
-    	requests.add(this);
-    }
-    
-    private synchronized void removeFromPool() {
-    	requests.remove(this);
-    }
+	private Handler mHandler = new Handler();
+	private byte [] Res;
+	private Object callbackParam;
+
+	private synchronized void addToPool() {
+		requests.add(this);
+	}
+
+	private synchronized void removeFromPool() {
+		requests.remove(this);
+	}
 	
 	private synchronized void response(boolean isok) {
 		if (!responseSended) {
 			responseSended=true;	
 			if (isok) {
-		        mHandler.post(new Runnable() {
-	                public void run() {
-	                	answerHandler.OnAnswer(callbackParam,Res);
-	                }
-	            });
+				mHandler.post(new Runnable() {
+					public void run() {
+						answerHandler.OnAnswer(callbackParam,Res);
+					}
+				});
 			} else {
-		        mHandler.post(new Runnable() {
-		                public void run() {
-		                	answerHandler.OnAnswer(callbackParam,null);
-		                }
-		            });
+				mHandler.post(new Runnable() {
+					public void run() {
+						answerHandler.OnAnswer(callbackParam,null);
+					}
+				});
 			}
 		}
 	}
@@ -109,29 +109,29 @@ public class URLNetRequester extends Thread {
 		DefaultHttpClient httpclient = new DefaultHttpClient();
 		HttpGet httpget = new HttpGet(url);
 		try {
-	
+
 			HttpResponse response = httpclient.execute(httpget);		
 			
 		    byte[] buf = new byte[4 * 1024]; // 4K buffer
 		    int bytesRead;    
 		    ByteArrayOutputStream r = new ByteArrayOutputStream();	
-				
-			HttpEntity entity = response.getEntity();
+
+		    HttpEntity entity = response.getEntity();
 		    if (entity != null) {
-		        InputStream instream = entity.getContent();
-			    while ((bytesRead = instream.read(buf)) != -1) {
-		            if (isResponseSended())
-		            	httpget.abort();
+		    	InputStream instream = entity.getContent();
+		    	while ((bytesRead = instream.read(buf)) != -1) {
+		    		if (isResponseSended())
+		    			httpget.abort();
 		            // Process the file
-		     	    r.write(buf, 0, bytesRead);
-		        }
-			    Res=r.toByteArray();
-			    response(true);
-		     } else {
-				Log.d("URLNetRequester", "Null entity");
-				response(false);
-		     }
-		     removeFromPool();
+		    		r.write(buf, 0, bytesRead);
+		    	}
+		    	Res=r.toByteArray();
+		    	response(true);
+		    } else {
+		    	Log.d("URLNetRequester", "Null entity");
+		    	response(false);
+		    }
+		    removeFromPool();
 		} catch (Exception e) {
 			Log.d("URLNetRequester", e.getMessage());
 			response(false);
