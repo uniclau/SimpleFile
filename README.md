@@ -12,7 +12,7 @@ Install
 
 From the root of a cordova project run: 
 
-	$ cordova plugin install https://github.com/TvrboPro/SimpleFile.git 
+	$ cordova plugin install https://github.com/uniclau/SimpleFile.git 
 
 Javascript API
 -----
